@@ -1,0 +1,13 @@
+[Unit]
+Description=Math Quest - gamified math practice for kids
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/slick/math-quest
+ExecStart=/usr/bin/python3 /home/slick/math-quest/server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Quest</title>
+<link rel="stylesheet" href="/math/static/styles.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ============ SIGN IN ============ -->
+<div class="screen" id="screen-signin">
+  <div class="hero">
+    <div class="logo">🧮</div>
+    <h1>Math <span class="q">Quest</span></h1>
+    <p>Level up your math, one problem at a time. Real problems, smart hints, zero multiple choice.</p>
+    <div id="sso-box"></div>
+    <div id="signin-error"></div>
+    <div class="feature-row">
+      <div class="feature">🎮 XP, levels &amp; badges</div>
+      <div class="feature">💡 Hints that teach, never give away</div>
+      <div class="feature">📈 Gets harder as you improve</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="screen" id="screen-home">
+  <div class="topbar">
+    <img id="user-pic" style="display:none" alt="">
+    <span id="user-name">Player</span>
+    <span class="level-badge" id="level-badge">Lv 1</span>
+    <div class="xp-wrap"><div class="xp-bar"><div id="xp-fill"></div></div><span id="xp-text"></span></div>
+    <span id="streak-flame"></span>
+    <span class="spacer"></span>
+    <button class="linkbtn" id="parent-link" style="display:none">Family stats</button>
+    <button class="linkbtn" id="logout-btn">Sign out</button>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n" id="stat-correct">0</div><div class="l">correct answers</div></div>
+    <div class="stat"><div class="n" id="stat-streak">0</div><div class="l">best streak</div></div>
+  </div>
+
+  <h2 class="section">Pick a quest ⚔️</h2>
+  <div id="topic-grid"></div>
+
+  <h2 class="section">Badges 🏅</h2>
+  <div id="badge-wall"></div>
+</div>
+
+<!-- ============ PLAY ============ -->
+<div class="screen" id="screen-play">
+  <div class="play-head">
+    <button class="btn ghost" id="quit-btn">← Quests</button>
+    <span id="play-topic"></span>
+    <span id="tier-label"></span>
+  </div>
+  <div class="problem-card" id="problem-card">
+    <div id="problem-prompt"></div>
+    <div class="answer-row">
+      <input id="answer-input" inputmode="decimal" autocomplete="off" placeholder="your answer" aria-label="Your answer">
+      <button class="btn primary" id="check-btn">Check ✓</button>
+    </div>
+    <div id="attempt-dots"></div>
+  </div>
+  <div class="feedback" id="feedback"></div>
+  <div id="recap-card"></div>
+  <div class="hint-zone">
+    <button class="btn ghost" id="hint-btn">💡 Need a hint?</button>
+    <div id="hint-area"></div>
+  </div>
+  <div style="text-align:center"><button class="btn primary" id="next-btn">Next →</button></div>
+</div>
+
+<!-- ============ FAMILY (parents) ============ -->
+<div class="screen" id="screen-family">
+  <div class="play-head">
+    <button class="btn ghost" id="family-back">← Back</button>
+    <span id="play-topic">Family stats 👨‍👩‍👧‍👦</span>
+  </div>
+  <p class="muted">Per-topic accuracy for everyone — use it to tune the curriculum.</p>
+  <div id="family-table"></div>
+</div>
+
+<script src="/math/static/curriculum.js"></script>
+<script src="/math/static/app.js"></script>
+</body>
+</html>
