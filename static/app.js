@@ -67,7 +67,9 @@ async function api(path, opts = {}) {
     ...opts,
   });
   if (res.status === 401) { showScreen('signin'); initSignIn(); return { ok: false, auth: false }; }
-  return res.json();
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch (e) { return { ok: false, error: 'bad-response' }; }
 }
 
 /* -------------------------------- screens -------------------------------- */
@@ -79,9 +81,9 @@ function showScreen(name) {
 
 /* --------------------------------- auth ---------------------------------- */
 async function boot() {
-  const cfg = await api('/api/config');
+  const cfg = await api('/math/api/config');
   state.clientId = cfg.google_client_id || null;
-  const me = await api('/api/me');
+  const me = await api('/math/api/me');
   if (me && me.ok) {
     state.user = me.user; state.stats = me.stats; state.isParent = !!me.is_parent;
     renderHome(); showScreen('home');
@@ -114,7 +116,7 @@ function initSignIn() {
 }
 
 async function onGoogleCredential(resp) {
-  const r = await api('/api/auth', { method: 'POST', body: JSON.stringify({ id_token: resp.credential }) });
+  const r = await api('/math/api/auth', { method: 'POST', body: JSON.stringify({ id_token: resp.credential }) });
   if (r && r.ok) {
     state.user = r.user; state.stats = r.stats; state.isParent = !!r.is_parent;
     renderHome(); showScreen('home');
@@ -124,7 +126,7 @@ async function onGoogleCredential(resp) {
 }
 
 async function logout() {
-  await api('/api/logout', { method: 'POST' });
+  await api('/math/api/logout', { method: 'POST' });
   state.user = null; state.stats = null;
   showScreen('signin'); initSignIn();
 }
@@ -244,7 +246,7 @@ async function checkAnswer() {
   renderAttemptDots();
 
   if (ok) {
-    const r = await api('/api/attempt', {
+    const r = await api('/math/api/attempt', {
       method: 'POST',
       body: JSON.stringify({ topic: state.topic.id, tier: state.tier, correct: true, attempts_used: state.attempts, hints_used: state.hintsShown }),
     });
@@ -252,7 +254,7 @@ async function checkAnswer() {
   } else if (state.attempts >= 3) {
     // Anti-guess: no more tries on THIS problem. Method recap, then a fresh problem.
     // The answer is never revealed — guessing can't converge.
-    await api('/api/attempt', {
+    await api('/math/api/attempt', {
       method: 'POST',
       body: JSON.stringify({ topic: state.topic.id, tier: state.tier, correct: false, attempts_used: state.attempts, hints_used: state.hintsShown }),
     }).then((r) => { if (r && r.ok) state.stats = r.stats; });
@@ -333,7 +335,7 @@ function showHint() {
 
 /* ------------------------------ parent view ------------------------------ */
 async function showFamily() {
-  const r = await api('/api/family');
+  const r = await api('/math/api/family');
   if (!r || !r.ok) return;
   const wrap = $('#family-table'); wrap.innerHTML = '';
   for (const u of r.users) {
