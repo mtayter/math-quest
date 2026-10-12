@@ -265,6 +265,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
         for c in cookies or []:
             self.send_header("Set-Cookie", c)
         self.end_headers()
@@ -309,7 +310,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/me":
             uid = self._session_user()
             if not uid:
-                return self._json(401, {"ok": False})
+                # 200 (not 401): "are you signed in?" is a status probe, and a
+                # 200 keeps the browser console clean for signed-out visitors.
+                return self._json(200, {"ok": False, "signed_in": False})
             u = get_user(uid)
             return self._json(200, {"ok": True,
                                     "user": {"name": u["name"], "email": u["email"], "picture": u["picture"]},
@@ -356,6 +359,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", MIME.get(ext, "application/octet-stream"))
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "public, max-age=300")
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
         self.end_headers()
         self.wfile.write(data)
 
