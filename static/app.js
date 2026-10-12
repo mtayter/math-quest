@@ -20,7 +20,9 @@ function rnd() {
 
 /* ------------------------- answer parsing/checking ------------------------- */
 function parseAnswer(s) {
-  s = String(s).trim().toLowerCase().replace(/,/g, '').replace(/×/g, 'x').replace(/\*/g, 'x');
+  const raw = String(s).trim().toLowerCase().replace(/×/g, 'x').replace(/\*/g, 'x');
+  if (raw.includes(',')) return { kind: 'text', v: raw }; // comma lists: 1,2,3
+  s = raw.replace(/,/g, '');
   let m = s.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);           // mixed: 1 1/2
   if (m) { const w = +m[1], d = +m[3]; return { kind: 'fraction', n: w * d + (w < 0 ? -1 : 1) * +m[2], d }; }
   m = s.match(/^(-?\d+)\s*\/\s*(-?\d+)$/);                        // fraction: 3/4
@@ -29,6 +31,12 @@ function parseAnswer(s) {
   return { kind: 'text', v: s };
 }
 const numVal = (p) => (p.kind === 'fraction' ? p.n / p.d : p.kind === 'decimal' ? p.v : NaN);
+// numeric value, with a fallback for thousands-separated input like 100,000
+function asNumber(parsed) {
+  if (parsed.kind !== 'text') return numVal(parsed);
+  const retry = parseAnswer(parsed.v.replace(/,/g, ''));
+  return retry.kind === 'text' ? NaN : numVal(retry);
+}
 
 function normalizeText(s, mode) {
   s = String(s).toLowerCase().replace(/[\s:]/g, '').replace(/×/g, 'x').replace(/\*/g, 'x');
@@ -36,21 +44,24 @@ function normalizeText(s, mode) {
     const nums = (s.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
     return nums.join('x');
   }
+  if (mode === 'numlist') {
+    return (s.match(/\d+/g) || []).join(',');
+  }
   return s;
 }
 function answersMatch(parsed, spec) {
   if (spec.kind === 'int') {
-    if (parsed.kind === 'text') return false;
-    return Math.abs(numVal(parsed) - spec.v) < 1e-9;
+    const v = asNumber(parsed);
+    return !isNaN(v) && Math.abs(v - spec.v) < 1e-9;
   }
   if (spec.kind === 'decimal') {
-    if (parsed.kind === 'text') return false;
-    return Math.abs(numVal(parsed) - spec.v) <= (spec.tol || 0.01);
+    const v = asNumber(parsed);
+    return !isNaN(v) && Math.abs(v - spec.v) <= (spec.tol || 0.01);
   }
   if (spec.kind === 'fraction') {
-    if (parsed.kind === 'text') return false;
     if (parsed.kind === 'fraction') return parsed.n * spec.d === spec.n * parsed.d; // exact
-    return Math.abs(numVal(parsed) - spec.n / spec.d) <= 1e-6; // decimal equivalent ok
+    const v = asNumber(parsed);
+    return !isNaN(v) && Math.abs(v - spec.n / spec.d) <= 1e-6; // decimal equivalent ok
   }
   if (spec.kind === 'text') {
     const got = normalizeText(parsed.kind === 'text' ? parsed.v : String(numVal(parsed)), spec.normalize);

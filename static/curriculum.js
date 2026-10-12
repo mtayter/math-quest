@@ -59,17 +59,16 @@ const fractionsT1 = {
         ],
       };
     }
-    // compare two fractions
-    const d = pick(rnd, [5, 6, 7, 8, 9, 10]);
-    let a = ri(rnd, 1, d - 1), b = ri(rnd, 1, d - 1);
-    if (a === b) b = (b % (d - 1)) + 1;
-    const bigger = a > b ? 'first' : 'second';
+    // equivalent fractions: find the missing numerator (typed, not a 50/50 pick)
+    const d = pick(rnd, [3, 4, 5, 6, 8]);
+    const n = ri(rnd, 1, d - 1);
+    const k = ri(rnd, 2, 5);
     return {
-      prompt: `Which is bigger: ${fracHTML(a, d)} or ${fracHTML(b, d)}? <span class="muted">(type 1st or 2nd)</span>`,
-      answer: { kind: 'text', accept: bigger === 'first' ? ['1st', 'first', '1'] : ['2nd', 'second', '2'] },
+      prompt: `${fracHTML(n, d)} = ${fracHTML('?', d * k)} — what is ?`,
+      answer: { kind: 'int', v: n * k },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>When fractions share a <b>denominator</b>, they’re cut into the same number of pieces — so the one with more pieces (bigger <b>numerator</b>) is bigger.</p><p>Example: ${fracHTML(2, 7)} vs ${fracHTML(5, 7)} — same 7 pieces each, and 5 pieces beats 2 pieces, so ${fracHTML(5, 7)} is bigger.</p><p><b>Your turn:</b> your fractions are cut into the same number of pieces. Which top is bigger?</p>` },
-        { t: 'Hint 2 — picture it', html: `<p>Imagine two identical pizzas, each cut into ${d} slices. One person eats ${a} slices, the other eats ${b} slices. Who ate more pizza?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Equivalent fractions are made by multiplying the top and bottom by the <b>same</b> number.</p><p>Example with <i>different</i> numbers: ${fracHTML(2, 5)} = ${fracHTML('?', 15)}. The bottom went 5 → 15, that’s × 3 — so the top goes 2 × 3 = 6. Answer: 6.</p><p><b>Your turn:</b> your bottom went ${d} → ${d * k}. What was it multiplied by? Do the same to your top.</p>` },
+        { t: 'Hint 2 — check it', html: `<p>Multiply your bottom by your multiplier — do you get ${d * k}? Now multiply your top by the same multiplier. Simplify your result if you can, then type just the number.</p>` },
       ],
     };
   },
@@ -129,17 +128,15 @@ const decimalsT1 = {
   gen(rnd, heat) {
     const kind = ri(rnd, 0, 2);
     if (kind === 0) {
-      // compare
-      const a = (ri(rnd, 0, 9) + ri(rnd, 0, 99) / 100).toFixed(2) * 1;
-      let b = (ri(rnd, 0, 9) + ri(rnd, 0, 99) / 100).toFixed(2) * 1;
-      if (a === b) b = +(b + 0.01).toFixed(2);
-      const bigger = a > b ? 'first' : 'second';
+      // round to the nearest tenth (typed decimal, not a 50/50 pick)
+      const val = ri(rnd, 0, 20) + ri(rnd, 0, 9) / 10 + ri(rnd, 0, 9) / 100;
+      const rounded = Math.round(val * 10) / 10;
       return {
-        prompt: `Which is bigger: ${a} or ${b}? <span class="muted">(type 1st or 2nd)</span>`,
-        answer: { kind: 'text', accept: bigger === 'first' ? ['1st', 'first', '1'] : ['2nd', 'second', '2'] },
+        prompt: `Round ${val.toFixed(2)} to the nearest tenth.`,
+        answer: { kind: 'decimal', v: +rounded.toFixed(1), tol: 0.001 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Compare decimals <b>one place at a time, left to right</b>: ones, then tenths, then hundredths. The first place where they differ decides it.</p><p>Example: 0.45 vs 0.405 — tenths are both 4, but hundredths are 5 vs 0, so 0.45 is bigger. (Longer ≠ bigger!)</p><p><b>Your turn:</b> line up ${a} and ${b} by their decimal points. What’s the first place where they differ?</p>` },
-          { t: 'Hint 2 — pad with zeros', html: `<p>Trick: add trailing zeros so both numbers have the same length — 0.5 becomes 0.500. Zeros on the end don’t change a decimal’s value, and now you can compare digit by digit easily.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>To round to the nearest tenth, peek at the <b>hundredths</b> digit: 5 or more rounds the tenths <b>up</b>, 4 or less leaves it alone.</p><p>Example: 3.47 — hundredths digit is 7 (≥ 5), so the 4 rounds up: 3.5.</p><p><b>Your turn:</b> in ${val.toFixed(2)}, what’s the hundredths digit? Does your tenths digit round up or stay?</p>` },
+          { t: 'Hint 2 — the carry', html: `<p>Careful when the tenths digit is 9 and rounds up: 4.96 → 5.0 (the ones digit carries). Write your rounded answer with one decimal place.</p>` },
         ],
       };
     }
@@ -625,13 +622,16 @@ const factorsT1 = {
         ],
       };
     }
-    const n = pick(rnd, [13, 17, 19, 23, 29, 15, 21, 25, 27, 33]);
-    const isPrime = [13, 17, 19, 23, 29].includes(n);
+    // list all factors (typed, not a prime/composite coin flip)
+    const n = pick(rnd, [12, 18, 20, 24, 28, 30, 36]);
+    const divs = [];
+    for (let i = 1; i <= n; i++) if (n % i === 0) divs.push(i);
     return {
-      prompt: `Is ${n} prime or composite? <span class="muted">(type "prime" or "composite")</span>`,
-      answer: { kind: 'text', accept: isPrime ? ['prime'] : ['composite'] },
+      prompt: `List <b>all</b> the factors of ${n}, smallest to largest, separated by commas.`,
+      answer: { kind: 'text', accept: [divs.join(',')], normalize: 'numlist' },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p><b>Prime</b> = only divisible by 1 and itself. <b>Composite</b> = has other divisors too. Test small primes: 2, 3, 5, 7…</p><p>Example: 21 — divisible by 3 (2+1=3, and 21÷3=7), so composite. 19 — not divisible by 2, 3, or 5… and you only need to test up to √19 ≈ 4.4, so it’s prime.</p><p><b>Your turn:</b> test ${n} against 2, 3, 5, 7 (up to √${n} ≈ ${Math.floor(Math.sqrt(n))}). Any divisors?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Factors come in <b>pairs</b> that multiply to your number. Walk 1, 2, 3… upward: whenever one divides ${n} evenly, you’ve found <i>two</i> factors.</p><p>Example: factors of 12 → 1×12, 2×6, 3×4, so: 1,2,3,4,6,12.</p><p><b>Your turn:</b> find the pairs for ${n}, then list every factor smallest to largest, like <span class="mono">1,2,3</span>.</p>` },
+        { t: 'Hint 2 — don’t stop early', html: `<p>You can stop testing once the pairs start repeating (past √${n} ≈ ${Math.floor(Math.sqrt(n))}). Count your list — did you get them all, including 1 and ${n} itself?</p>` },
       ],
     };
   },
@@ -713,12 +713,12 @@ const factorsT3 = {
     const a = ri(rnd, 2, 5), b = a + ri(rnd, 1, 3);
     const ea = ri(rnd, 2, 3), eb = ri(rnd, 2, 3);
     const va = Math.pow(a, ea), vb = Math.pow(b, eb);
-    const bigger = va > vb ? 'first' : 'second';
+    if (va === vb) return factorsT3.gen(rnd, heat);
     return {
-      prompt: `Which is bigger: ${a}<sup>${ea}</sup> or ${b}<sup>${eb}</sup>? <span class="muted">(type 1st or 2nd)</span>`,
-      answer: { kind: 'text', accept: bigger === 'first' ? ['1st', 'first', '1'] : ['2nd', 'second', '2'] },
+      prompt: `${a}<sup>${ea}</sup> and ${b}<sup>${eb}</sup> — type the <b>value</b> of the larger one.`,
+      answer: { kind: 'int', v: Math.max(va, vb) },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Don’t be fooled by the bigger base! <b>Evaluate each power</b> (write out the multiplication), then compare the results.</p><p>Example: 2<sup>5</sup> vs 5<sup>2</sup>. 2<sup>5</sup> = 32, but 5<sup>2</sup> = 25 — the “smaller” base wins.</p><p><b>Your turn:</b> compute ${a}<sup>${ea}</sup> and ${b}<sup>${eb}</sup> separately. Which result is bigger?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Don’t be fooled by the bigger base! <b>Evaluate each power</b> (write out the multiplication), then compare the results.</p><p>Example: 2<sup>5</sup> vs 5<sup>2</sup>. 2<sup>5</sup> = 32, but 5<sup>2</sup> = 25 — the “smaller” base wins, so you’d type 32.</p><p><b>Your turn:</b> compute ${a}<sup>${ea}</sup> and ${b}<sup>${eb}</sup> separately. Which value is larger? Type that number.</p>` },
       ],
     };
   },
@@ -726,7 +726,7 @@ const factorsT3 = {
 
 /* ------------------------------ TOPIC REGISTRY ------------------------------ */
 const TOPICS = [
-  { id: 'fractions', name: 'Fractions', icon: '🍕', blurb: 'Simplify, compare, add & subtract', tiers: [fractionsT1, fractionsT2, fractionsT3] },
+  { id: 'fractions', name: 'Fractions', icon: '🍕', blurb: 'Simplify, equivalent fractions, add & subtract', tiers: [fractionsT1, fractionsT2, fractionsT3] },
   { id: 'decimals', name: 'Decimals', icon: '💵', blurb: 'Place value, operations, converting', tiers: [decimalsT1, decimalsT2, decimalsT3] },
   { id: 'order', name: 'Order of Operations', icon: '🧮', blurb: 'Parentheses, exponents, PEMDAS', tiers: [orderT1, orderT2, orderT3] },
   { id: 'negatives', name: 'Negative Numbers', icon: '🌡️', blurb: 'Add, subtract, multiply & divide', tiers: [negativesT1, negativesT2, negativesT3] },
