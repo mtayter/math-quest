@@ -94,7 +94,6 @@ async function boot() {
 
 function initSignIn() {
   const box = $('#sso-box');
-  box.innerHTML = '';
   if (!state.clientId) {
     box.innerHTML = `<div class="setup-card"><h3>⚙️ One-time setup needed</h3>
       <p>Sign-in isn't configured yet. The site owner needs to add a Google OAuth client ID:</p>
@@ -111,6 +110,9 @@ function initSignIn() {
     setTimeout(initSignIn, 800);
     return;
   }
+  if (state.ssoInit) return; // google.accounts.id.initialize() must run once
+  state.ssoInit = true;
+  box.innerHTML = '';
   google.accounts.id.initialize({ client_id: state.clientId, callback: onGoogleCredential, ux_mode: 'popup' });
   google.accounts.id.renderButton(box, { theme: 'outline', size: 'large', width: 280, text: 'signin_with' });
 }
