@@ -8,6 +8,7 @@ const state = {
   user: null, stats: null, clientId: null, isParent: false,
   topic: null, tier: 0, problem: null, attempts: 0, hintsShown: 0,
   seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0,
+  route: '', pendingRoute: '',
 };
 
 function rnd() {
@@ -39,13 +40,22 @@ function asNumber(parsed) {
 }
 
 function normalizeText(s, mode) {
-  s = String(s).toLowerCase().replace(/[\s:]/g, '').replace(/×/g, 'x').replace(/\*/g, 'x');
+  s = String(s).toLowerCase().replace(/[\s:]/g, '').replace(/×/g, 'x').replace(/\*/g, 'x').replace(/−/g, '-');
   if (mode === 'factorlist') {
     const nums = (s.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
     return nums.join('x');
   }
   if (mode === 'numlist') {
     return (s.match(/\d+/g) || []).join(',');
+  }
+  if (mode === 'equation') {
+    // y = mx + b: drop the "y=" prefix, collapse "+-" to "-"
+    if (s.startsWith('y=')) s = s.slice(2);
+    return s.replace(/\+-/g, '-');
+  }
+  if (mode === 'scinot') {
+    // 4.5e4, 4.5x10^4, 4.5*10^4 -> 4.5e4
+    return s.replace(/x10\^/g, 'e');
   }
   return s;
 }
@@ -90,6 +100,38 @@ function showScreen(name) {
   window.scrollTo(0, 0);
 }
 
+/* -------------------------------- routing -------------------------------- */
+// Hash routing: #/ home, #/play/<topicId>, #/family, #/signin.
+// Hash (not path) routing so refresh and deep links never ask the server
+// for a route it doesn't serve — the backend only serves /, /static/*, /api/*.
+function parseRoute(hash) {
+  const clean = String(hash || '').replace(/^#\/?/, '');
+  if (!clean) return { screen: 'home' };
+  if (clean === 'signin') return { screen: 'signin' };
+  if (clean === 'family') return { screen: 'family' };
+  const m = clean.match(/^play\/([a-z0-9-]+)$/);
+  if (m && TOPICS.some((t) => t.id === m[1])) return { screen: 'play', topic: m[1] };
+  return { screen: 'home' };
+}
+function navigate(route, push = true) {
+  if (push) history.pushState({ route }, '', '#/' + route);
+  state.route = route;
+  applyRoute(route);
+}
+function applyRoute(route) {
+  const r = parseRoute('#/' + route);
+  if (r.screen === 'signin') { showScreen('signin'); initSignIn(); return; }
+  if (!state.user) { state.pendingRoute = route; showScreen('signin'); initSignIn(); return; }
+  if (r.screen === 'home') { renderHome(); showScreen('home'); return; }
+  if (r.screen === 'family') { showFamily(); return; }
+  if (r.screen === 'play') { startTopic(r.topic, false); return; }
+}
+window.addEventListener('popstate', () => {
+  const route = location.hash.replace(/^#\/?/, '');
+  state.route = route;
+  applyRoute(route);
+});
+
 /* --------------------------------- auth ---------------------------------- */
 async function boot() {
   const cfg = await api('/math/api/config');
@@ -97,8 +139,10 @@ async function boot() {
   const me = await api('/math/api/me');
   if (me && me.ok) {
     state.user = me.user; state.stats = me.stats; state.isParent = !!me.is_parent;
-    renderHome(); showScreen('home');
+    // Restore the routed page on refresh / deep link; '' = home.
+    applyRoute(location.hash.replace(/^#\/?/, ''));
   } else {
+    state.pendingRoute = location.hash.replace(/^#\/?/, '') || '';
     showScreen('signin'); initSignIn();
   }
 }
@@ -132,7 +176,11 @@ async function onGoogleCredential(resp) {
   const r = await api('/math/api/auth', { method: 'POST', body: JSON.stringify({ id_token: resp.credential }) });
   if (r && r.ok) {
     state.user = r.user; state.stats = r.stats; state.isParent = !!r.is_parent;
-    renderHome(); showScreen('home');
+    // After sign-in, go where the deep link (or refresh) pointed, if anywhere.
+    const pending = state.pendingRoute || '';
+    state.pendingRoute = '';
+    if (pending && pending !== 'signin') applyRoute(pending);
+    else { renderHome(); showScreen('home'); }
   } else {
     $('#signin-error').textContent = 'Sign-in failed — please try again.';
   }
@@ -141,7 +189,7 @@ async function onGoogleCredential(resp) {
 async function logout() {
   await api('/math/api/logout', { method: 'POST' });
   state.user = null; state.stats = null;
-  showScreen('signin'); initSignIn();
+  navigate('signin');
 }
 
 /* ------------------------------ gamification ------------------------------ */
@@ -185,10 +233,13 @@ function renderHome() {
       const unlocked = i <= ts.tier;
       return `<span class="tier-pill ${unlocked ? 'open' : 'locked'}" title="${tr.name}">${unlocked ? (i + 1) : '🔒'}</span>`;
     }).join('');
+    const gMin = Math.min(...t.grades), gMax = Math.max(...t.grades);
+    const gradeLabel = gMin === gMax ? `Grade ${gMin}` : `Grades ${gMin}–${gMax}`;
     card.innerHTML = `
       <div class="topic-icon">${t.icon}</div>
       <div class="topic-name">${t.name}</div>
       <div class="topic-blurb">${t.blurb}</div>
+      <div class="grade-label">📚 ${gradeLabel}</div>
       <div class="tier-row">${tierPills}<span class="tier-name">${t.tiers[ts.tier].name}</span></div>
       <div class="mastery"><div class="mastery-fill" style="width:${Math.round(ts.mastery)}%"></div></div>
       <button class="btn primary play-btn">Practice →</button>`;
@@ -213,12 +264,13 @@ function renderHome() {
 /* -------------------------------- game loop ------------------------------- */
 function topicById(id) { return TOPICS.find((t) => t.id === id); }
 
-function startTopic(id) {
+function startTopic(id, push = true) {
   state.topic = topicById(id);
   const ts = (state.stats.topics && state.stats.topics[id]) || { tier: 0, heat: 0.4 };
   state.tier = Math.min(ts.tier, state.topic.tiers.length - 1);
   showScreen('play');
   $('#play-topic').textContent = `${state.topic.icon} ${state.topic.name}`;
+  if (push) history.pushState({ route: 'play/' + id }, '', '#/play/' + id);
   newProblem();
 }
 
@@ -228,7 +280,7 @@ function newProblem() {
   const tierDef = state.topic.tiers[state.tier];
   state.problem = tierDef.gen(rnd, ts.heat == null ? 0.4 : ts.heat);
   state.attempts = 0; state.hintsShown = 0;
-  $('#tier-label').textContent = `Tier ${state.tier + 1} · ${tierDef.name}`;
+  $('#tier-label').textContent = `Tier ${state.tier + 1} · Grade ${state.topic.grades[state.tier]} · ${tierDef.name}`;
   $('#problem-prompt').innerHTML = state.problem.prompt;
   $('#answer-input').value = '';
   $('#answer-input').disabled = false;
@@ -373,9 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#check-btn').onclick = checkAnswer;
   $('#answer-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
   $('#hint-btn').onclick = showHint;
-  $('#quit-btn').onclick = () => { renderHome(); showScreen('home'); };
+  $('#quit-btn').onclick = () => navigate('');
   $('#logout-btn').onclick = logout;
-  $('#parent-link').onclick = showFamily;
-  $('#family-back').onclick = () => showScreen('home');
+  $('#parent-link').onclick = () => navigate('family');
+  $('#family-back').onclick = () => navigate('');
   boot();
 });

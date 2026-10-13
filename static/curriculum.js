@@ -724,15 +724,360 @@ const factorsT3 = {
   },
 };
 
+/* --------------------------- LINEAR EQUATIONS (8th) --------------------------- */
+function linStr(m, b) {
+  let s = m === 1 ? 'x' : m === -1 ? '−x' : `${m}x`;
+  if (b > 0) s += ` + ${b}`; else if (b < 0) s += ` − ${Math.abs(b)}`;
+  return s;
+}
+const linearT1 = {
+  name: 'Slope & y-intercept',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const m = pick(rnd, [-3, -2, -1, 1, 2, 3]);
+      const dx = ri(rnd, 1, 3), dy = m * dx;
+      const x1 = ri(rnd, 0, 5), y1 = ri(rnd, -5, 5);
+      return {
+        prompt: `Find the slope of the line through (${x1}, ${y1}) and (${x1 + dx}, ${y1 + dy}).`,
+        answer: { kind: 'int', v: m },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Slope = <b>rise over run</b> = (change in y) ÷ (change in x).</p><p>Example: through (0, 1) and (2, 7). Rise = 7 − 1 = 6, run = 2 − 0 = 2, slope = 6 ÷ 2 = 3.</p><p><b>Your turn:</b> how much does y change between your two points? How much does x change? Divide.</p>` },
+          { t: 'Hint 2 — sign check', html: `<p>Going left to right: if the line goes <b>up</b>, slope is positive; <b>down</b>, negative. Does your sign match the direction?</p>` },
+        ],
+      };
+    }
+    const m = ri(rnd, 2, 9) * pick(rnd, [1, -1]), b = ri(rnd, 1, 9) * pick(rnd, [1, -1]);
+    return {
+      prompt: `In y = ${linStr(m, b)}, what is the y-intercept? <span class="muted">(just the number)</span>`,
+      answer: { kind: 'int', v: b },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>In <b>y = mx + b</b>, the y-intercept is the <b>b</b> — the number standing alone, where the line crosses the y-axis (where x = 0).</p><p>Example: y = 4x − 7. The y-intercept is −7.</p><p><b>Your turn:</b> in your equation, which number is the b?</p>` },
+      ],
+    };
+  },
+};
+
+const linearT2 = {
+  name: 'Write equations & solve both sides',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const m = pick(rnd, [2, 3, 4, 5, -2, -3, -4, -5]);
+      const x0 = ri(rnd, 1, 6), y0 = ri(rnd, -4, 12);
+      const b = y0 - m * x0;
+      if (b === 0) return linearT2.gen(rnd, heat);
+      const canonical = linStr(m, b).replace(/−/g, '-').replace(/\s/g, '');
+      return {
+        prompt: `A line has slope ${m} and passes through (${x0}, ${y0}). Write its equation as y = mx + b.`,
+        answer: { kind: 'text', accept: [canonical], normalize: 'equation' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Start with <b>y = mx + b</b>. You know m and a point (x, y) — plug them in and solve for b.</p><p>Example: slope 2, point (1, 5). y = 2x + b → 5 = 2·1 + b → b = 3. Equation: y = 2x + 3.</p><p><b>Your turn:</b> plug your slope and point into y = mx + b. What’s b?</p>` },
+          { t: 'Hint 2 — check it', html: `<p>Plug your point back into your finished equation. Does the left side really equal the right side? Type it like <span class="mono">y=2x+3</span>.</p>` },
+        ],
+      };
+    }
+    const a1 = ri(rnd, 3, 6), a2 = ri(rnd, 1, a1 - 1), x = ri(rnd, 2, 9), b2 = ri(rnd, 1, 9);
+    const b1 = (a2 - a1) * x + b2;
+    const fmt = (a, b) => `${a}x${b >= 0 ? ' + ' + b : ' − ' + Math.abs(b)}`;
+    return {
+      prompt: `${fmt(a1, b1)} = ${fmt(a2, b2)} — find x`,
+      answer: { kind: 'int', v: x },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Get all the x’s on <b>one side</b> and all the plain numbers on the <b>other</b>, undoing in reverse order.</p><p>Example: 3x + 5 = x + 11. Subtract x from both sides: 2x + 5 = 11. Subtract 5: 2x = 6. Divide: x = 3.</p><p><b>Your turn:</b> what do you subtract from both sides to get the x’s together?</p>` },
+        { t: 'Hint 2 — check it', html: `<p>Plug your x into <b>both</b> sides of the original equation. Both sides should give the same number.</p>` },
+      ],
+    };
+  },
+};
+
+const linearT3 = {
+  name: 'Tougher linear equations',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 2, 4), b = ri(rnd, 2, 6), c = ri(rnd, 1, a - 1), x = ri(rnd, 2, 9);
+      const d = a * (x + b) - c * x;
+      return {
+        prompt: `${a}(x + ${b}) = ${c}x + ${d} — find x`,
+        answer: { kind: 'int', v: x },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>Distribute first</b>, then solve like a both-sides equation.</p><p>Example: 2(x + 3) = x + 10. Distribute: 2x + 6 = x + 10. Subtract x: x + 6 = 10. Subtract 6: x = 4.</p><p><b>Your turn:</b> distribute the ${a} in your equation. What does it become?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const m = ri(rnd, 2, 5), xi = ri(rnd, 2, 9), b = -m * xi;
+      return {
+        prompt: `Find the x-intercept of y = ${linStr(m, b)}. <span class="muted">(the x-value where y = 0)</span>`,
+        answer: { kind: 'int', v: xi },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>The x-intercept is where the line crosses the x-axis — where <b>y = 0</b>. Set y to 0 and solve for x.</p><p>Example: y = 2x − 6. Set 0 = 2x − 6 → 2x = 6 → x = 3. The x-intercept is 3.</p><p><b>Your turn:</b> set y = 0 in your equation. What equation do you get?</p>` },
+        ],
+      };
+    }
+    const a1 = ri(rnd, 3, 6), a2 = ri(rnd, 1, a1 - 1), x = ri(rnd, 2, 9);
+    const b1 = -ri(rnd, 1, 9), b2 = (a1 - a2) * x + b1;
+    const fmt = (a, b) => `${a}x${b >= 0 ? ' + ' + b : ' − ' + Math.abs(b)}`;
+    return {
+      prompt: `${fmt(a1, b1)} = ${fmt(a2, b2)} — find x`,
+      answer: { kind: 'int', v: x },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Same move as before, watching the signs: get x’s on one side, numbers on the other. Remember, subtracting a negative is adding.</p><p><b>Your turn:</b> subtract the smaller x-term from both sides first. What’s left?</p>` },
+        { t: 'Hint 2 — check it', html: `<p>Plug your x into both sides. Equal? If not, recheck the sign step.</p>` },
+      ],
+    };
+  },
+};
+
+/* ------------------------- SYSTEMS OF EQUATIONS (8th) ------------------------- */
+const systemsT1 = {
+  name: 'Where do lines meet?',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const x0 = ri(rnd, 2, 9), y0 = ri(rnd, -5, 10);
+      const m1 = ri(rnd, 2, 4), m2 = pick(rnd, [-2, -1, 0, 1]);
+      if (m1 === m2) return systemsT1.gen(rnd, heat);
+      const b1 = y0 - m1 * x0, b2 = y0 - m2 * x0;
+      return {
+        prompt: `y = ${linStr(m1, b1)} and y = ${linStr(m2, b2)} — for what x do both give the same y?`,
+        answer: { kind: 'int', v: x0 },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Where the lines meet, their y’s are <b>equal</b> — so set the two right sides equal to each other and solve for x.</p><p>Example: y = 2x + 1 and y = x + 4. Set equal: 2x + 1 = x + 4 → x = 3. (Check: both give y = 7.)</p><p><b>Your turn:</b> set your two expressions equal. What equation do you get?</p>` },
+        ],
+      };
+    }
+    const m = ri(rnd, 2, 5) * pick(rnd, [1, -1]), b = ri(rnd, -6, 6), x = ri(rnd, 2, 6);
+    return {
+      prompt: `If y = ${linStr(m, b)} and x = ${x}, what is y?`,
+      answer: { kind: 'int', v: m * x + b },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace x with its value, then compute.</p><p>Example: y = 3x − 2 with x = 4 → y = 3·4 − 2 = 10.</p><p><b>Your turn:</b> rewrite your equation with ${x} in place of x. What’s y?</p>` },
+      ],
+    };
+  },
+};
+
+const systemsT2 = {
+  name: 'Solve a system',
+  gen(rnd, heat) {
+    const x0 = ri(rnd, 1, 9), y0 = ri(rnd, -5, 9);
+    const m1 = ri(rnd, 2, 4), m2 = ri(rnd, -3, -1);
+    const b1 = y0 - m1 * x0, b2 = y0 - m2 * x0;
+    return {
+      prompt: `Solve: y = ${linStr(m1, b1)} and y = ${linStr(m2, b2)}. <span class="muted">Type x,y</span>`,
+      answer: { kind: 'text', accept: [`${x0},${y0}`], normalize: 'numlist' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>The solution is the point where the lines <b>meet</b>: set the two expressions equal, solve for x, then plug back to get y.</p><p>Example: y = 2x + 1 and y = −x + 7. Equal: 2x + 1 = −x + 7 → 3x = 6 → x = 2. Then y = 2·2 + 1 = 5. Answer: 2,5.</p><p><b>Your turn:</b> set your two expressions equal. What’s x?</p>` },
+        { t: 'Hint 2 — finish it', html: `<p>Now plug your x into either original equation to get y. Check by plugging into the <i>other</i> equation — does it hold? Type your answer like <span class="mono">3,4</span>.</p>` },
+      ],
+    };
+  },
+};
+
+const systemsT3 = {
+  name: 'Elimination',
+  gen(rnd, heat) {
+    const x0 = ri(rnd, 2, 9), y0 = ri(rnd, 1, 9);
+    const a1 = ri(rnd, 2, 6), a2 = ri(rnd, 1, a1 - 1), b = ri(rnd, 2, 4);
+    const elimX = rnd() < 0.5;
+    // eliminate y: share the y-coefficient; eliminate x: share the x-coefficient
+    const c1 = elimX ? a1 * x0 + b * y0 : b * x0 + a1 * y0;
+    const c2 = elimX ? a2 * x0 + b * y0 : b * x0 + a2 * y0;
+    const eq = (a, bb, c) => `${a}x + ${bb}y = ${c}`;
+    return {
+      prompt: elimX
+        ? `Solve: ${eq(a1, b, c1)} and ${eq(a2, b, c2)}. <span class="muted">Type x,y</span>`
+        : `Solve: ${eq(b, a1, c1)} and ${eq(b, a2, c2)}. <span class="muted">Type x,y</span>`,
+      answer: { kind: 'text', accept: [`${x0},${y0}`], normalize: 'numlist' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p><b>Elimination:</b> when both equations share a coefficient, subtract them — that variable vanishes and you’re left with a one-variable equation.</p><p>Example: 2x + 3y = 17 and 5x + 3y = 29. Subtract: 3x = 12 → x = 4. Then 2·4 + 3y = 17 → 3y = 9 → y = 3. Answer: 4,3.</p><p><b>Your turn:</b> which variable vanishes if you subtract your two equations? What’s left?</p>` },
+        { t: 'Hint 2 — finish it', html: `<p>Solve for the remaining variable, then plug it into either original equation to get the other one. Check in both equations, then type <span class="mono">x,y</span>.</p>` },
+      ],
+    };
+  },
+};
+
+/* ------------------------- PYTHAGOREAN THEOREM (8th) ------------------------- */
+const TRIPLES = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [9, 12, 15], [7, 24, 25]];
+function pickTriple(rnd, maxC) {
+  const ok = TRIPLES.filter((t) => !maxC || t[2] <= maxC);
+  return pick(rnd, ok);
+}
+const pythagT1 = {
+  name: 'Find the hypotenuse',
+  gen(rnd, heat) {
+    const [a, b, c] = pickTriple(rnd, heat > 0.5 ? 30 : 17);
+    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    return {
+      prompt: `A right triangle has legs ${a * k} and ${b * k}. How long is the hypotenuse?`,
+      answer: { kind: 'int', v: c * k },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Pythagoras: <b>a² + b² = c²</b>, where c is the hypotenuse (across from the right angle, the longest side).</p><p>Example: legs 3 and 4. 3² + 4² = 9 + 16 = 25 = c², so c = 5.</p><p><b>Your turn:</b> square your two legs and add. What number squared gives that total?</p>` },
+        { t: 'Hint 2 — square root', html: `<p>You need the number that, times itself, equals your sum. Try whole numbers near it: does 6², 7², 8²… land on it?</p>` },
+      ],
+    };
+  },
+};
+const pythagT2 = {
+  name: 'Find a missing leg',
+  gen(rnd, heat) {
+    const [a, b, c] = pickTriple(rnd, heat > 0.5 ? 30 : 17);
+    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    return {
+      prompt: `A right triangle has hypotenuse ${c * k} and one leg ${a * k}. Find the other leg.`,
+      answer: { kind: 'int', v: b * k },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Still a² + b² = c² — but now you know c and one leg, so <b>subtract</b>: (missing leg)² = c² − (known leg)².</p><p>Example: hypotenuse 13, leg 5. Missing² = 13² − 5² = 169 − 25 = 144, so missing = 12.</p><p><b>Your turn:</b> square your hypotenuse and your known leg, subtract. What squared gives the result?</p>` },
+      ],
+    };
+  },
+};
+const pythagT3 = {
+  name: 'Word problems & distance',
+  gen(rnd, heat) {
+    const [a, b, c] = pickTriple(rnd, 30);
+    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      return {
+        prompt: `A ${c * k}-foot ladder leans against a wall with its base ${a * k} feet from the wall. How high up the wall does it reach? <span class="muted">(in feet)</span>`,
+        answer: { kind: 'int', v: b * k },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Picture it: the ladder is the <b>hypotenuse</b>, the ground distance and the wall height are the <b>legs</b>. Use a² + b² = c².</p><p><b>Your turn:</b> which numbers are the hypotenuse and the known leg? Subtract their squares, then square-root.</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      return {
+        prompt: `A rectangle is ${a * k} by ${b * k}. How long is its diagonal?`,
+        answer: { kind: 'int', v: c * k },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>A rectangle’s diagonal splits it into two right triangles — the diagonal is the <b>hypotenuse</b>, the sides are the legs.</p><p><b>Your turn:</b> square the two sides, add, and take the square root.</p>` },
+        ],
+      };
+    }
+    return {
+      prompt: `How far apart are (0, 0) and (${a * k}, ${b * k})?`,
+      answer: { kind: 'int', v: c * k },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Distance on a grid is a hypotenuse: make a right triangle with legs equal to the x-difference and the y-difference.</p><p><b>Your turn:</b> your legs are ${a * k} and ${b * k}. Square, add, square-root.</p>` },
+      ],
+    };
+  },
+};
+
+/* ---------------------- SCIENTIFIC NOTATION & ROOTS (8th) ---------------------- */
+const scinotT1 = {
+  name: 'Scientific notation basics',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const d = (ri(rnd, 12, 99) / 10).toFixed(1), k = ri(rnd, 3, 5);
+      const N = Math.round(parseFloat(d) * Math.pow(10, k));
+      const withCommas = N.toLocaleString('en-US');
+      return {
+        prompt: `Write ${withCommas} in scientific notation.`,
+        answer: { kind: 'text', accept: [`${d}e${k}`], normalize: 'scinot' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Scientific notation is <b>one digit, a decimal, then × 10 to a power</b>. The power counts how many places the point moves.</p><p>Example: 45,000 → the point moves 4 places to get 4.5, so 4.5 × 10⁴. Type it as <span class="mono">4.5e4</span>.</p><p><b>Your turn:</b> where does the point go to leave one digit before it? How many places did it move?</p>` },
+        ],
+      };
+    }
+    const d = (ri(rnd, 12, 99) / 10).toFixed(1), k = ri(rnd, 3, 4);
+    const N = Math.round(parseFloat(d) * Math.pow(10, k));
+    return {
+      prompt: `Write  ${d} × 10<sup>${k}</sup> as a regular number.`,
+      answer: { kind: 'int', v: N },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>10<sup>k</sup> means “move the point k places right,” adding zeros as needed.</p><p>Example: 3.2 × 10³ → move the point 3 right: 3,200.</p><p><b>Your turn:</b> move your point ${k} places right. What number do you get?</p>` },
+      ],
+    };
+  },
+};
+const scinotT2 = {
+  name: 'Multiply & divide powers',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = pick(rnd, [2, 3, 4]), b = pick(rnd, [2, 3]);
+      if (a * b >= 10) return scinotT2.gen(rnd, heat);
+      const e1 = ri(rnd, 2, 5), e2 = ri(rnd, 2, 4);
+      return {
+        prompt: `(${a}×10<sup>${e1}</sup>) × (${b}×10<sup>${e2}</sup>) = ? <span class="muted">Write in scientific notation</span>`,
+        answer: { kind: 'text', accept: [`${a * b}e${e1 + e2}`], normalize: 'scinot' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Multiply the <b>front numbers</b>, and <b>add the exponents</b>.</p><p>Example: (3×10⁴) × (2×10³). Front: 3 × 2 = 6. Exponents: 4 + 3 = 7. Answer: 6e7.</p><p><b>Your turn:</b> multiply your front numbers, add your exponents. Type it like <span class="mono">6e7</span>.</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const e1 = ri(rnd, 4, 7), e2 = ri(rnd, 1, 3);
+      return {
+        prompt: `10<sup>${e1}</sup> ÷ 10<sup>${e2}</sup> = ? <span class="muted">Write in scientific notation</span>`,
+        answer: { kind: 'text', accept: [`1e${e1 - e2}`], normalize: 'scinot' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Dividing powers of 10: <b>subtract the exponents</b>.</p><p>Example: 10⁶ ÷ 10² = 10⁴. Type it as <span class="mono">1e4</span>.</p><p><b>Your turn:</b> ${e1} − ${e2} = ?</p>` },
+        ],
+      };
+    }
+    const a = pick(rnd, [2, 3]), e = ri(rnd, 2, 4);
+    return {
+      prompt: `(${a}×10<sup>${e}</sup>)² = ? <span class="muted">Write in scientific notation</span>`,
+      answer: { kind: 'text', accept: [`${a * a}e${2 * e}`], normalize: 'scinot' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Squaring hits <b>both</b> parts: square the front number, and <b>double</b> the exponent.</p><p>Example: (2×10³)² = 4 × 10⁶. Type it as <span class="mono">4e6</span>.</p><p><b>Your turn:</b> square your front number, double your exponent.</p>` },
+      ],
+    };
+  },
+};
+const scinotT3 = {
+  name: 'Square roots & cube roots',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const r = ri(rnd, 4, 13), n = r * r;
+      return {
+        prompt: `√${n} = ?`,
+        answer: { kind: 'int', v: r },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>√n asks: “what number, times itself, equals n?”</p><p>Example: √49 = 7, because 7 × 7 = 49.</p><p><b>Your turn:</b> which whole number squared gives ${n}?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const r = ri(rnd, 3, 10), n = r * r + ri(rnd, 1, 2 * r);
+      return {
+        prompt: `√${n} is between which two whole numbers? <span class="muted">Type them, smallest first</span>`,
+        answer: { kind: 'text', accept: [`${r},${r + 1}`], normalize: 'numlist' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Sandwich it between <b>perfect squares</b> you know.</p><p>Example: √50. 7² = 49 and 8² = 64, and 50 sits between 49 and 64 — so √50 is between 7 and 8.</p><p><b>Your turn:</b> which two perfect squares does ${n} sit between? Their roots are your answer.</p>` },
+        ],
+      };
+    }
+    const r = pick(rnd, [2, 3, 4, 5]), n = r * r * r;
+    return {
+      prompt: `∛${n} = ? <span class="muted">(cube root)</span>`,
+      answer: { kind: 'int', v: r },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Cube root asks: “what number, times itself <b>three</b> times, equals n?”</p><p>Example: ∛27 = 3, because 3 × 3 × 3 = 27.</p><p><b>Your turn:</b> which whole number, cubed, gives ${n}?</p>` },
+      ],
+    };
+  },
+};
+
 /* ------------------------------ TOPIC REGISTRY ------------------------------ */
+// grades: per-tier US grade-level estimates (mainstream public-school
+// curriculum, Common Core era). Approximate — states/districts vary.
 const TOPICS = [
-  { id: 'fractions', name: 'Fractions', icon: '🍕', blurb: 'Simplify, equivalent fractions, add & subtract', tiers: [fractionsT1, fractionsT2, fractionsT3] },
-  { id: 'decimals', name: 'Decimals', icon: '💵', blurb: 'Place value, operations, converting', tiers: [decimalsT1, decimalsT2, decimalsT3] },
-  { id: 'order', name: 'Order of Operations', icon: '🧮', blurb: 'Parentheses, exponents, PEMDAS', tiers: [orderT1, orderT2, orderT3] },
-  { id: 'negatives', name: 'Negative Numbers', icon: '🌡️', blurb: 'Add, subtract, multiply & divide', tiers: [negativesT1, negativesT2, negativesT3] },
-  { id: 'ratios', name: 'Ratios & Proportions', icon: '⚖️', blurb: 'Simplify, solve, scale', tiers: [ratiosT1, ratiosT2, ratiosT3] },
-  { id: 'percents', name: 'Percents', icon: '📊', blurb: 'Of a number, up & down', tiers: [percentsT1, percentsT2, percentsT3] },
-  { id: 'prealgebra', name: 'Pre-Algebra', icon: '🔍', blurb: 'Expressions & solving for x', tiers: [prealgT1, prealgT2, prealgT3] },
-  { id: 'factors', name: 'Factors & Exponents', icon: '🔢', blurb: 'GCF, LCM, primes, powers', tiers: [factorsT1, factorsT2, factorsT3] },
+  { id: 'fractions', name: 'Fractions', icon: '🍕', blurb: 'Simplify, equivalent fractions, add & subtract', grades: [4, 4, 5], tiers: [fractionsT1, fractionsT2, fractionsT3] },
+  { id: 'decimals', name: 'Decimals', icon: '💵', blurb: 'Place value, operations, converting', grades: [5, 5, 6], tiers: [decimalsT1, decimalsT2, decimalsT3] },
+  { id: 'order', name: 'Order of Operations', icon: '🧮', blurb: 'Parentheses, exponents, PEMDAS', grades: [5, 5, 6], tiers: [orderT1, orderT2, orderT3] },
+  { id: 'negatives', name: 'Negative Numbers', icon: '🌡️', blurb: 'Add, subtract, multiply & divide', grades: [7, 7, 8], tiers: [negativesT1, negativesT2, negativesT3] },
+  { id: 'ratios', name: 'Ratios & Proportions', icon: '⚖️', blurb: 'Simplify, solve, scale', grades: [6, 7, 7], tiers: [ratiosT1, ratiosT2, ratiosT3] },
+  { id: 'percents', name: 'Percents', icon: '📊', blurb: 'Of a number, up & down', grades: [6, 7, 7], tiers: [percentsT1, percentsT2, percentsT3] },
+  { id: 'prealgebra', name: 'Pre-Algebra', icon: '🔍', blurb: 'Expressions & solving for x', grades: [7, 7, 8], tiers: [prealgT1, prealgT2, prealgT3] },
+  { id: 'factors', name: 'Factors & Exponents', icon: '🔢', blurb: 'GCF, LCM, primes, powers', grades: [4, 6, 8], tiers: [factorsT1, factorsT2, factorsT3] },
+  { id: 'linear', name: 'Linear Equations', icon: '📈', blurb: 'Slope, intercepts & solving', grades: [8, 8, 8], tiers: [linearT1, linearT2, linearT3] },
+  { id: 'systems', name: 'Systems of Equations', icon: '🔀', blurb: 'Two equations, one answer', grades: [8, 8, 8], tiers: [systemsT1, systemsT2, systemsT3] },
+  { id: 'pythag', name: 'Pythagorean Theorem', icon: '📐', blurb: 'Right triangles & distance', grades: [8, 8, 8], tiers: [pythagT1, pythagT2, pythagT3] },
+  { id: 'scinotation', name: 'Scientific Notation & Roots', icon: '🔬', blurb: 'Big/small numbers, square roots', grades: [8, 8, 8], tiers: [scinotT1, scinotT2, scinotT3] },
 ];
 if (typeof module !== 'undefined') module.exports = { TOPICS, mulberry32 };
