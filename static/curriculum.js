@@ -1063,6 +1063,820 @@ const scinotT3 = {
   },
 };
 
+/* ---------- helpers for high-school topics ---------- */
+// Format a polynomial from [degree, coeff] pairs, mirroring normalizePoly's
+// canonical output ("x^2+5x+6", "6x+2", "-x^2+3x-1").
+function fmtPoly(pairs) {
+  const terms = pairs.filter(([, c]) => Math.abs(c) > 1e-9).sort((a, b) => b[0] - a[0]);
+  if (!terms.length) return '0';
+  let out = '';
+  terms.forEach(([d, c], i) => {
+    const abs = Math.abs(c);
+    out += i === 0 ? (c < 0 ? '-' : '') : (c < 0 ? '-' : '+');
+    out += d === 0 ? abs : (abs === 1 ? '' : abs);
+    if (d !== 0) out += 'x' + (d === 1 ? '' : '^' + d);
+  });
+  return out;
+}
+// "x² + 3x + 2" display form (spaces + superscripts), from [a, b, c].
+function quadDisplay(a, b, c) {
+  let s = a === 1 ? 'x²' : a === -1 ? '−x²' : `${a}x²`;
+  if (b !== 0) s += b > 0 ? ` + ${b === 1 ? '' : b}x` : ` − ${b === -1 ? '' : Math.abs(b)}x`;
+  if (c !== 0) s += c > 0 ? ` + ${c}` : ` − ${Math.abs(c)}`;
+  return s;
+}
+
+/* ----------------------------- QUADRATICS (9th) ----------------------------- */
+const quadraticsT1 = {
+  name: 'Solve factored form & evaluate',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      let r1 = ri(rnd, -9, 9), r2 = ri(rnd, -9, 9);
+      if (r1 === 0 || r2 === 0 || r1 === r2) return quadraticsT1.gen(rnd, heat);
+      if (r1 > r2) [r1, r2] = [r2, r1];
+      const f = (r) => r >= 0 ? `(x − ${r})` : `(x + ${Math.abs(r)})`;
+      return {
+        prompt: `${f(r1)}${f(r2)} = 0 — find both values of x. <span class="muted">Type them, smallest first</span>`,
+        answer: { kind: 'text', accept: [`${r1},${r2}`], normalize: 'numlist' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>If a product is 0, <b>one of the factors must be 0</b>. Set each factor to 0 and solve.</p><p>Example: (x − 2)(x + 5) = 0. Either x − 2 = 0 → x = 2, or x + 5 = 0 → x = −5. Answer: −5,2.</p><p><b>Your turn:</b> what does each of your factors give?</p>` },
+        ],
+      };
+    }
+    const a = ri(rnd, 1, 3), b = ri(rnd, -5, 5), c = ri(rnd, -5, 5), x0 = ri(rnd, 2, 6);
+    return {
+      prompt: `Evaluate ${quadDisplay(a, b, c)} when x = ${x0}.`,
+      answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace every x with ${x0}, then compute — exponents first.</p><p>Example: x² + 3x + 2 at x = 4 → 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your expression with ${x0} in place of x. What do you get?</p>` },
+      ],
+    };
+  },
+};
+const quadraticsT2 = {
+  name: 'Factor & solve',
+  gen(rnd, heat) {
+    let r1 = ri(rnd, -9, 9), r2 = ri(rnd, -9, 9);
+    if (r1 === 0 || r2 === 0) return quadraticsT2.gen(rnd, heat);
+    if (r1 > r2) [r1, r2] = [r2, r1];
+    const b = r1 + r2, c = r1 * r2;
+    const f = (r) => r >= 0 ? `(x-${r})` : `(x+${Math.abs(r)})`;
+    if (rnd() < 0.5) {
+      return {
+        prompt: `Factor ${quadDisplay(1, -b, c)}. <span class="muted">Type it like (x+2)(x+3)</span>`,
+        answer: { kind: 'text', accept: [f(r1) + f(r2)], normalize: 'factored' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>To factor x² + bx + c, find two numbers that <b>multiply to c</b> and <b>add to b</b>.</p><p>Example: x² + 7x + 12. Numbers that multiply to 12 and add to 7: 3 and 4. So (x + 3)(x + 4).</p><p><b>Your turn:</b> which two numbers multiply to ${c} and add to ${-b}?</p>` },
+          { t: 'Hint 2 — check it', html: `<p>Multiply your two factors back out (FOIL). Do you get the original quadratic?</p>` },
+        ],
+      };
+    }
+    return {
+      prompt: `Solve ${quadDisplay(1, -b, c)} = 0. <span class="muted">Type both values of x, smallest first</span>`,
+      answer: { kind: 'text', accept: [`${r1},${r2}`], normalize: 'numlist' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p><b>Factor first</b>, then set each factor to 0.</p><p>Example: x² + 7x + 12 = 0 → (x + 3)(x + 4) = 0 → x = −3 or x = −4.</p><p><b>Your turn:</b> factor your quadratic. What are its roots?</p>` },
+      ],
+    };
+  },
+};
+const quadraticsT3 = {
+  name: 'Formula & vertex',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a = pick(rnd, [2, 3]);
+      let r1 = ri(rnd, -8, 8), r2 = ri(rnd, -8, 8);
+      if (r1 === 0 || r2 === 0 || r1 === r2) return quadraticsT3.gen(rnd, heat);
+      if (r1 > r2) [r1, r2] = [r2, r1];
+      const b = -a * (r1 + r2), c = a * r1 * r2;
+      return {
+        prompt: `Solve ${quadDisplay(a, b, c)} = 0. <span class="muted">Type both values of x, smallest first</span>`,
+        answer: { kind: 'text', accept: [`${r1},${r2}`], normalize: 'numlist' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Use the <b>quadratic formula</b>: x = (−b ± √(b² − 4ac)) / 2a. First find the discriminant, b² − 4ac.</p><p>Example: 2x² − 10x + 8 = 0. a=2, b=−10, c=8. Discriminant: 100 − 64 = 36, √36 = 6. x = (10 ± 6)/4 → x = 4 or x = 1.</p><p><b>Your turn:</b> what are a, b, c in your equation? What’s the discriminant?</p>` },
+        ],
+      };
+    }
+    const a = pick(rnd, [1, 2]), k = ri(rnd, -6, 6);
+    if (k === 0) return quadraticsT3.gen(rnd, heat);
+    const b = -2 * a * k, c = ri(rnd, -8, 8);
+    return {
+      prompt: `Find the x-coordinate of the vertex of y = ${quadDisplay(a, b, c)}.`,
+      answer: { kind: 'int', v: k },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>The vertex of y = ax² + bx + c sits at <b>x = −b / 2a</b> — the axis of symmetry.</p><p>Example: y = x² + 6x + 5. x = −6 / 2 = −3.</p><p><b>Your turn:</b> what are a and b in your equation? Compute −b / 2a.</p>` },
+      ],
+    };
+  },
+};
+
+/* ------------------------------ GEOMETRY (9th–10th) ------------------------------ */
+const geometryT1 = {
+  name: 'Angles',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 15, 75);
+      return {
+        prompt: `Two angles are complementary. One is ${a}°. What is the other? <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: 90 - a },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>Complementary</b> angles add to 90°.</p><p>Example: complementary to 35° is 90 − 35 = 55°.</p><p><b>Your turn:</b> 90 − ${a} = ?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const a = ri(rnd, 95, 165);
+      return {
+        prompt: `Two angles are supplementary. One is ${a}°. What is the other? <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: 180 - a },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>Supplementary</b> angles add to 180° — they make a straight line.</p><p>Example: supplementary to 110° is 180 − 110 = 70°.</p><p><b>Your turn:</b> 180 − ${a} = ?</p>` },
+        ],
+      };
+    }
+    const a = ri(rnd, 25, 80), b = ri(rnd, 25, 170 - a - 25);
+    return {
+      prompt: `A triangle has angles ${a}° and ${b}°. What is the third angle? <span class="muted">(in degrees)</span>`,
+      answer: { kind: 'int', v: 180 - a - b },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>A triangle’s angles always add to <b>180°</b>.</p><p>Example: angles 50° and 70° → third = 180 − 50 − 70 = 60°.</p><p><b>Your turn:</b> 180 − ${a} − ${b} = ?</p>` },
+      ],
+    };
+  },
+};
+const geometryT2 = {
+  name: 'Triangles & transversals',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 30, 80);
+      const sameSide = rnd() < 0.5;
+      return {
+        prompt: `Two parallel lines are cut by a transversal. One angle is ${a}°. What is its ${sameSide ? 'same-side interior' : 'alternate interior'} angle? <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: sameSide ? 180 - a : a },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>With parallel lines: <b>alternate interior</b> angles are equal; <b>same-side interior</b> angles add to 180°.</p><p>Example: one angle 65° → alternate interior 65°, same-side interior 115°.</p><p><b>Your turn:</b> which rule fits your angle type?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const a = ri(rnd, 30, 90), b = ri(rnd, 30, 90);
+      return {
+        prompt: `A triangle has two remote interior angles ${a}° and ${b}°. What is the exterior angle? <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: a + b },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>The <b>exterior angle theorem</b>: an exterior angle equals the sum of the two remote (non-adjacent) interior angles.</p><p>Example: remote angles 40° and 75° → exterior 115°.</p><p><b>Your turn:</b> add your two remote angles.</p>` },
+        ],
+      };
+    }
+    const v = pick(rnd, [30, 40, 50, 60, 80, 100]);
+    return {
+      prompt: `An isosceles triangle has a vertex angle of ${v}°. What is each base angle? <span class="muted">(in degrees)</span>`,
+      answer: { kind: 'int', v: (180 - v) / 2 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>An isosceles triangle’s two <b>base angles are equal</b>, and all three add to 180°.</p><p>Example: vertex 40° → the two base angles share 140°, so each is 70°.</p><p><b>Your turn:</b> 180 − ${v} = ? Split it in half.</p>` },
+      ],
+    };
+  },
+};
+const geometryT3 = {
+  name: 'Circles & coordinates',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const r = pick(rnd, [3, 4, 5, 6, 7, 8, 10]);
+      return {
+        prompt: `A circle has radius ${r}. What is its area? <span class="muted">Use π ≈ 3.14</span>`,
+        answer: { kind: 'decimal', v: 3.14 * r * r },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Area of a circle = <b>π r²</b>.</p><p>Example: r = 5 → 3.14 × 25 = 78.5.</p><p><b>Your turn:</b> square your radius, then multiply by 3.14.</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const r = pick(rnd, [3, 5, 7, 10]);
+      return {
+        prompt: `A circle has radius ${r}. What is its circumference? <span class="muted">Use π ≈ 3.14</span>`,
+        answer: { kind: 'decimal', v: 2 * 3.14 * r },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Circumference = <b>2 π r</b>.</p><p>Example: r = 7 → 2 × 3.14 × 7 = 43.96.</p><p><b>Your turn:</b> 2 × 3.14 × ${r} = ?</p>` },
+        ],
+      };
+    }
+    // Midpoint: same-parity coordinates so the midpoint is an integer.
+    const x1 = ri(rnd, 0, 8), y1 = ri(rnd, 0, 8);
+    const dx = 2 * ri(rnd, 1, 5), dy = 2 * ri(rnd, 1, 5);
+    const x2 = x1 + dx, y2 = y1 + dy;
+    return {
+      prompt: `What is the midpoint of (${x1}, ${y1}) and (${x2}, ${y2})? <span class="muted">Type x,y</span>`,
+      answer: { kind: 'text', accept: [`${x1 + dx / 2},${y1 + dy / 2}`], normalize: 'numlist' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>The midpoint is the <b>average</b> of the x’s and the average of the y’s.</p><p>Example: midpoint of (2, 4) and (6, 10) → ((2+6)/2, (4+10)/2) = (4, 7).</p><p><b>Your turn:</b> average your two x’s, then average your two y’s.</p>` },
+      ],
+    };
+  },
+};
+
+/* ---------------------- EXPONENTS & LOGARITHMS (10th–11th) ---------------------- */
+const explogsT1 = {
+  name: 'Exponent laws',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const m = ri(rnd, 2, 5), n = ri(rnd, 2, 4);
+      return {
+        prompt: `Write (x<sup>${m}</sup>)<sup>${n}</sup> as x^n. <span class="muted">Type it like x^5</span>`,
+        answer: { kind: 'text', accept: [`x^${m * n}`], normalize: 'power' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Power of a power: <b>multiply the exponents</b>.</p><p>Example: (x³)⁴ = x¹², because 3 × 4 = 12.</p><p><b>Your turn:</b> ${m} × ${n} = ?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const b = pick(rnd, [2, 3, 5]), e = ri(rnd, 2, 3);
+      return {
+        prompt: `What is ${b}<sup>−${e}</sup> as a fraction?`,
+        answer: { kind: 'fraction', n: 1, d: Math.pow(b, e) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>A negative exponent means <b>flip it</b>: b⁻ᵉ = 1 / bᵉ.</p><p>Example: 2⁻³ = 1 / 2³ = 1/8.</p><p><b>Your turn:</b> 1 over ${b}<sup>${e}</sup> = ?</p>` },
+        ],
+      };
+    }
+    const b = ri(rnd, 2, 6), e = pick(rnd, [2, 3]);
+    return {
+      prompt: `Evaluate ${b}<sup>${e}</sup>.`,
+      answer: { kind: 'int', v: Math.pow(b, e) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>An exponent counts <b>repeated multiplication</b>.</p><p>Example: 4³ = 4 × 4 × 4 = 64.</p><p><b>Your turn:</b> write out your multiplication.</p>` },
+      ],
+    };
+  },
+};
+const explogsT2 = {
+  name: 'Exponential equations & logs',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const b = pick(rnd, [2, 3, 5]), e = ri(rnd, 2, 6);
+      return {
+        prompt: `Solve ${b}^x = ${Math.pow(b, e)}. Find x.`,
+        answer: { kind: 'int', v: e },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Write the right side as a power of the same base, then the exponents must match.</p><p>Example: 2^x = 64 = 2⁶, so x = 6.</p><p><b>Your turn:</b> ${Math.pow(b, e)} is ${b} to what power?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const b = pick(rnd, [2, 3, 5, 10]), e = ri(rnd, 2, 5);
+      return {
+        prompt: `What is log<sub>${b}</sub>(${Math.pow(b, e)})?`,
+        answer: { kind: 'int', v: e },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>log<sub>b</sub>(y) asks: “${b} to what power gives y?”</p><p>Example: log₂(32) = 5, because 2⁵ = 32.</p><p><b>Your turn:</b> ${b} to what power gives ${Math.pow(b, e)}?</p>` },
+        ],
+      };
+    }
+    const b = pick(rnd, [2, 3]), e = ri(rnd, 2, 5);
+    return {
+      prompt: `Solve ${b}^(x+1) = ${Math.pow(b, e)}. Find x.`,
+      answer: { kind: 'int', v: e - 1 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>First match the exponents: x + 1 must equal the exponent on the right.</p><p>Example: 3^(x+1) = 81 = 3⁴, so x + 1 = 4 → x = 3.</p><p><b>Your turn:</b> what exponent gives your right side? Then solve x + 1 = that.</p>` },
+      ],
+    };
+  },
+};
+const explogsT3 = {
+  name: 'Log properties',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 2, 9), b = ri(rnd, 2, 9);
+      return {
+        prompt: `log(${a}) + log(${b}) = log( ? ). What is ?`,
+        answer: { kind: 'int', v: a * b },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>Product rule:</b> log(a) + log(b) = log(a × b) — adding logs multiplies the insides.</p><p>Example: log(12) + log(3) = log(36).</p><p><b>Your turn:</b> ${a} × ${b} = ?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const b = pick(rnd, [2, 3]), e = ri(rnd, 3, 6);
+      return {
+        prompt: `Solve log<sub>${b}</sub>(x) = ${e}. Find x.`,
+        answer: { kind: 'int', v: Math.pow(b, e) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>log<sub>b</sub>(x) = e means <b>x = bᵉ</b> — rewrite in exponential form.</p><p>Example: log₂(x) = 5 → x = 2⁵ = 32.</p><p><b>Your turn:</b> ${b}<sup>${e}</sup> = ?</p>` },
+        ],
+      };
+    }
+    const b = pick(rnd, [2, 3, 5]), e1 = ri(rnd, 2, 4), e2 = ri(rnd, 1, e1 - 1);
+    return {
+      prompt: `What is log<sub>${b}</sub>(${Math.pow(b, e1)}) − log<sub>${b}</sub>(${Math.pow(b, e2)})?`,
+      answer: { kind: 'int', v: e1 - e2 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p><b>Quotient rule:</b> log(a) − log(b) = log(a ÷ b) — or just evaluate each log separately and subtract.</p><p>Example: log₅(125) − log₅(5) = 3 − 1 = 2.</p><p><b>Your turn:</b> what is each log by itself?</p>` },
+      ],
+    };
+  },
+};
+
+/* ------------------------------ FUNCTIONS (9th–11th) ------------------------------ */
+const functionsT1 = {
+  name: 'Evaluate',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a = ri(rnd, 1, 3), b = ri(rnd, -4, 4), c = ri(rnd, -5, 5), x0 = ri(rnd, 2, 5);
+      const f = `${quadDisplay(a, b, c)}`;
+      return {
+        prompt: `If f(x) = ${f}, what is f(${x0})?`,
+        answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>f(${x0}) means <b>plug ${x0} in for x</b> everywhere, then compute.</p><p>Example: f(x) = x² + 3x + 2, f(4) = 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your function with ${x0} in place of x.</p>` },
+        ],
+      };
+    }
+    const a1 = ri(rnd, 2, 4), b1 = ri(rnd, -4, 4), a2 = ri(rnd, 2, 3), b2 = ri(rnd, -4, 4), x0 = ri(rnd, 2, 5);
+    const inner = a2 * x0 + b2;
+    return {
+      prompt: `If f(x) = ${linStr(a1, b1)} and g(x) = ${linStr(a2, b2)}, what is f(g(${x0}))?`,
+      answer: { kind: 'int', v: a1 * inner + b1 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Work <b>inside out</b>: find g(${x0}) first, then feed that result into f.</p><p>Example: f(x) = 3x + 2, g(x) = x − 1, f(g(4)). g(4) = 3, then f(3) = 11.</p><p><b>Your turn:</b> what is g(${x0})? Then plug that into f.</p>` },
+        ],
+      };
+  },
+};
+const functionsT2 = {
+  name: 'Composition & inverse',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a1 = pick(rnd, [2, 3]), b1 = ri(rnd, -5, 5);
+      const a2 = pick(rnd, [2, 3]), b2 = ri(rnd, -5, 5);
+      const A = a1 * a2, B = a1 * b2 + b1;
+      return {
+        prompt: `If f(x) = ${linStr(a1, b1)} and g(x) = ${linStr(a2, b2)}, find (f∘g)(x). <span class="muted">Type it like 2x-5</span>`,
+        answer: { kind: 'text', accept: [fmtPoly([[1, A], [0, B]])], normalize: 'poly' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>(f∘g)(x) = f(g(x)): <b>replace x in f with the whole g(x)</b>, then simplify.</p><p>Example: f(x) = 2x + 1, g(x) = x − 3. f(g(x)) = 2(x − 3) + 1 = 2x − 5.</p><p><b>Your turn:</b> write f with (${linStr(a2, b2)}) in place of x. Distribute and combine.</p>` },
+        ],
+      };
+    }
+    const a = pick(rnd, [2, 3]), b = ri(rnd, -6, 6), x0 = ri(rnd, 2, 8);
+    const y0 = a * x0 + b;
+    return {
+      prompt: `If f(x) = ${linStr(a, b)}, what is f⁻¹(${y0})? <span class="muted">(the inverse function, at ${y0})</span>`,
+      answer: { kind: 'int', v: x0 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>f⁻¹(y) <b>undoes</b> f: it’s the x that f sends to y. Set f(x) = ${y0} and solve for x.</p><p>Example: f(x) = 2x + 4, f⁻¹(10). 2x + 4 = 10 → x = 3.</p><p><b>Your turn:</b> set your f(x) equal to ${y0}. What’s x?</p>` },
+      ],
+    };
+  },
+};
+const functionsT3 = {
+  name: 'Domain & transformations',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 2, 9);
+      if (rnd() < 0.5) {
+        return {
+          prompt: `What is the domain of f(x) = √(x − ${a})? <span class="muted">Type it like x>=3</span>`,
+          answer: { kind: 'text', accept: [`x>=${a}`], normalize: 'domain' },
+          hints: [
+            { t: 'Hint 1 — the idea', html: `<p>A square root needs a <b>non-negative</b> inside: x − a ≥ 0.</p><p>Example: f(x) = √(x − 3) → x − 3 ≥ 0 → x ≥ 3.</p><p><b>Your turn:</b> what must x − ${a} be? Solve for x.</p>` },
+          ],
+        };
+      }
+      return {
+        prompt: `What is the domain of f(x) = 1/(x − ${a})? <span class="muted">Type it like x!=3</span>`,
+        answer: { kind: 'text', accept: [`x!=${a}`], normalize: 'domain' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>You can’t <b>divide by zero</b> — the denominator can’t be 0.</p><p>Example: f(x) = 1/(x − 3) → x − 3 ≠ 0 → x ≠ 3.</p><p><b>Your turn:</b> what x makes your denominator 0? Exclude it.</p>` },
+          ],
+        };
+    }
+    if (style === 1) {
+      const px = ri(rnd, 1, 8), py = ri(rnd, 1, 10);
+      const h = pick(rnd, [-4, -3, -2, 2, 3, 4]), k = pick(rnd, [-5, -3, -2, 2, 3, 5]);
+      const hs = h >= 0 ? `+ ${h}` : `− ${Math.abs(h)}`;
+      const ks = k >= 0 ? `+ ${k}` : `− ${Math.abs(k)}`;
+      return {
+        prompt: `If g(x) = f(x ${hs}) ${ks}, the point (${px}, ${py}) on f moves to which point on g? <span class="muted">Type x,y</span>`,
+        answer: { kind: 'text', accept: [`${px - h},${py + k}`], normalize: 'numlist' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Inside the function shifts x <b>opposite</b> (x + h moves left by h); outside shifts y <b>same direction</b>.</p><p>Example: g(x) = f(x + 2) − 3 moves (4, 10) to (2, 7): x − 2, y − 3.</p><p><b>Your turn:</b> how does your point’s x move? Its y?</p>` },
+        ],
+      };
+    }
+    const a = ri(rnd, 2, 5);
+    return {
+      prompt: `If f(x) = x², what is f(x + ${a}) expanded? <span class="muted">Type like x^2+4x+4</span>`,
+      answer: { kind: 'text', accept: [fmtPoly([[2, 1], [1, 2 * a], [0, a * a]])], normalize: 'poly' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Replace x with (x + a) and <b>expand the square</b>: (x + a)² = x² + 2ax + a².</p><p>Example: f(x + 2) = (x + 2)² = x² + 4x + 4.</p><p><b>Your turn:</b> expand (x + ${a})². What are the three terms?</p>` },
+      ],
+    };
+  },
+};
+
+/* --------------------------- TRIGONOMETRY (11th–12th) --------------------------- */
+const TRIG_RAT = [ // [name, value as {n, d}] — only rational special-angle values
+  ['sin(0°)', 0, 1], ['sin(30°)', 1, 2], ['sin(90°)', 1, 1],
+  ['cos(0°)', 1, 1], ['cos(60°)', 1, 2], ['cos(90°)', 0, 1],
+  ['tan(0°)', 0, 1], ['tan(45°)', 1, 1],
+];
+const trigT1 = {
+  name: 'Right-triangle trig',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const [opp, adj, hyp] = pick(rnd, [[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10]]);
+      const fn = pick(rnd, ['sin', 'cos', 'tan']);
+      const [num, den, label] = fn === 'sin' ? [opp, hyp, 'opposite / hypotenuse']
+        : fn === 'cos' ? [adj, hyp, 'adjacent / hypotenuse']
+        : [opp, adj, 'opposite / adjacent'];
+      return {
+        prompt: `In a right triangle, the side opposite angle A is ${opp} and the hypotenuse is ${hyp}. What is ${fn}(A)?`,
+        answer: { kind: 'fraction', n: num, d: den },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>SOH CAH TOA</b>: sin = opposite/hypotenuse, cos = adjacent/hypotenuse, tan = opposite/adjacent.</p><p>Example: opposite 3, hypotenuse 5 → sin = 3/5.</p><p><b>Your turn:</b> ${fn} = ${label}. What fraction is that?</p>` },
+        ],
+      };
+    }
+    const hyp = pick(rnd, [6, 8, 10, 12, 14]);
+    if (rnd() < 0.5) {
+      return {
+        prompt: `In a 30°-60°-90° triangle, the hypotenuse is ${hyp}. What is the short leg?`,
+        answer: { kind: 'int', v: hyp / 2 },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>short leg is half the hypotenuse</b>.</p><p>Example: hypotenuse 10 → short leg 5.</p><p><b>Your turn:</b> half of ${hyp} = ?</p>` },
+        ],
+      };
+    }
+    const short = ri(rnd, 3, 9);
+    return {
+      prompt: `In a 30°-60°-90° triangle, the short leg is ${short}. What is the hypotenuse?`,
+      answer: { kind: 'int', v: 2 * short },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>hypotenuse is twice the short leg</b>.</p><p>Example: short leg 4 → hypotenuse 8.</p><p><b>Your turn:</b> 2 × ${short} = ?</p>` },
+      ],
+    };
+  },
+};
+const trigT2 = {
+  name: 'Unit circle',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const [name, n, d] = pick(rnd, TRIG_RAT);
+      return {
+        prompt: `What is ${name}?`,
+        answer: { kind: 'fraction', n, d },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Special angles have exact values worth memorizing: sin(30°) = 1/2, cos(60°) = 1/2, tan(45°) = 1, sin(90°) = 1, cos(90°) = 0.</p><p><b>Your turn:</b> picture the angle on the unit circle. What’s the value?</p>` },
+        ],
+      };
+    }
+    const [name, n, d] = pick(rnd, TRIG_RAT.filter(([, nn]) => nn !== 0));
+    const fn = name.slice(0, 3), deg = name.slice(4, -2);
+    return {
+      prompt: `If ${fn}(θ) = ${d === 1 ? n : n + '/' + d} and θ is acute, what is θ? <span class="muted">(in degrees)</span>`,
+      answer: { kind: 'int', v: parseInt(deg, 10) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Run the special-angle table <b>backwards</b>: which acute angle gives that value?</p><p>Example: sin(θ) = 1/2 → θ = 30°, because sin(30°) = 1/2.</p><p><b>Your turn:</b> which angle has ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+      ],
+    };
+  },
+};
+const trigT3 = {
+  name: 'Equations & identities',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const [name, n, d] = pick(rnd, TRIG_RAT.filter(([, nn]) => nn !== 0));
+      const fn = name.slice(0, 3), deg = name.slice(4, -2);
+      return {
+        prompt: `Solve ${fn}(x) = ${d === 1 ? n : n + '/' + d} for 0° ≤ x ≤ 90°. Find x. <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: parseInt(deg, 10) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Ask: “which angle in range has this trig value?” Use the special-angle values.</p><p>Example: sin(x) = 1/2 for 0° ≤ x ≤ 90° → x = 30°.</p><p><b>Your turn:</b> which angle gives ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const [n, d] = pick(rnd, [[1, 4], [1, 2], [3, 4]]);
+      return {
+        prompt: `If sin²(θ) = ${n}/${d}, what is cos²(θ)?`,
+        answer: { kind: 'fraction', n: d - n, d },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>The Pythagorean identity: <b>sin²(θ) + cos²(θ) = 1</b>.</p><p>Example: sin²(θ) = 3/4 → cos²(θ) = 1 − 3/4 = 1/4.</p><p><b>Your turn:</b> 1 − ${n}/${d} = ?</p>` },
+        ],
+      };
+    }
+    const [name1, n1, d1] = pick(rnd, TRIG_RAT);
+    const [name2, n2, d2] = pick(rnd, TRIG_RAT);
+    const v1 = n1 / d1, v2 = n2 / d2, sum = v1 + v2;
+    const num = Math.round(sum * 2), isHalf = Math.abs(sum * 2 - num) < 1e-9 && num % 2 === 1;
+    return {
+      prompt: `What is ${name1} + ${name2}?`,
+      answer: isHalf ? { kind: 'fraction', n: num, d: 2 } : { kind: 'int', v: Math.round(sum) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Evaluate each term from the special-angle values, then add.</p><p>Example: tan(45°) + sin(90°) = 1 + 1 = 2.</p><p><b>Your turn:</b> what is each term by itself?</p>` },
+      ],
+    };
+  },
+};
+
+/* ------------------------ SEQUENCES & SERIES (11th–12th) ------------------------ */
+const sequencesT1 = {
+  name: 'nth term',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a1 = ri(rnd, 1, 9), d = ri(rnd, 2, 6), n = ri(rnd, 8, 15);
+      return {
+        prompt: `An arithmetic sequence starts ${a1}, ${a1 + d}, ${a1 + 2 * d}, … What is the ${n}th term?`,
+        answer: { kind: 'int', v: a1 + (n - 1) * d },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Arithmetic nth term: <b>aₙ = a₁ + (n − 1)d</b>, where d is the common difference.</p><p>Example: 3, 7, 11, … (d = 4). 10th term: 3 + 9 × 4 = 39.</p><p><b>Your turn:</b> what’s your d? Then ${a1} + ${n - 1} × d = ?</p>` },
+        ],
+      };
+    }
+    const a1 = ri(rnd, 2, 4), r = ri(rnd, 2, 3), n = ri(rnd, 4, 6);
+    return {
+      prompt: `A geometric sequence starts ${a1}, ${a1 * r}, ${a1 * r * r}, … What is the ${n}th term?`,
+      answer: { kind: 'int', v: a1 * Math.pow(r, n - 1) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Geometric nth term: <b>aₙ = a₁ × rⁿ⁻¹</b>, where r is the common ratio.</p><p>Example: 2, 6, 18, … (r = 3). 5th term: 2 × 3⁴ = 162.</p><p><b>Your turn:</b> what’s your r? Then ${a1} × ${r}<sup>${n - 1}</sup> = ?</p>` },
+        ],
+      };
+  },
+};
+const sequencesT2 = {
+  name: 'Series sums',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a1 = ri(rnd, 1, 9), d = ri(rnd, 2, 5), n = ri(rnd, 6, 12);
+      return {
+        prompt: `What is the sum of the first ${n} terms of ${a1}, ${a1 + d}, ${a1 + 2 * d}, …?`,
+        answer: { kind: 'int', v: (n / 2) * (2 * a1 + (n - 1) * d) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Arithmetic series: <b>Sₙ = n/2 × (2a₁ + (n−1)d)</b>. Or pair first+last, second+second-last…</p><p>Example: first 10 terms of 3, 7, 11, …: 10/2 × (6 + 36) = 210.</p><p><b>Your turn:</b> what’s the ${n}th term? Then average it with the first and multiply by ${n}.</p>` },
+        ],
+      };
+    }
+    const a1 = ri(rnd, 2, 3), r = ri(rnd, 2, 3), n = ri(rnd, 4, 5);
+    return {
+      prompt: `What is the sum of the first ${n} terms of ${a1}, ${a1 * r}, ${a1 * r * r}, …?`,
+      answer: { kind: 'int', v: a1 * (Math.pow(r, n) - 1) / (r - 1) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Geometric series: <b>Sₙ = a₁(rⁿ − 1)/(r − 1)</b>.</p><p>Example: first 5 terms of 2, 6, 18, …: 2 × (3⁵ − 1)/2 = 242.</p><p><b>Your turn:</b> compute ${r}<sup>${n}</sup>, then plug in.</p>` },
+        ],
+      };
+  },
+};
+const sequencesT3 = {
+  name: 'Recursive & infinite',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a1 = ri(rnd, 1, 4), m = ri(rnd, 2, 3), add = ri(rnd, 1, 3), n = ri(rnd, 3, 5);
+      let cur = a1;
+      for (let i = 2; i <= n; i++) cur = m * cur + add;
+      return {
+        prompt: `A sequence is defined by a₁ = ${a1}, aₙ = ${m}aₙ₋₁ + ${add}. What is a<sub>${n}</sub>?`,
+        answer: { kind: 'int', v: cur },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Build it <b>one term at a time</b>: each term comes from the previous one.</p><p>Example: a₁ = 2, aₙ = 3aₙ₋₁ + 1. a₂ = 7, a₃ = 22, a₄ = 67.</p><p><b>Your turn:</b> what’s a₂? Then a₃, and so on up to a<sub>${n}</sub>.</p>` },
+        ],
+      };
+    }
+    const a1 = pick(rnd, [2, 4]);
+    const t2 = a1 / 2, t3 = a1 / 4;
+    const fmt = (v) => Number.isInteger(v) ? String(v) : `1/${2 / v}`;
+    return {
+      prompt: `What is ${a1} + ${fmt(t2)} + ${fmt(t3)} + … (forever)?`,
+      answer: { kind: 'int', v: 2 * a1 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Infinite geometric sum: <b>S = a₁ / (1 − r)</b>, when |r| < 1.</p><p>Example: 1 + 1/2 + 1/4 + … has a₁ = 1, r = 1/2 → S = 1 / (1 − 1/2) = 2.</p><p><b>Your turn:</b> what are a₁ and r in your series? Then ${a1} / (1 − 1/2) = ?</p>` },
+      ],
+    };
+  },
+};
+
+/* --------------------- STATISTICS & PROBABILITY (10th–11th) --------------------- */
+function pickDistinct(rnd, count, lo, hi) {
+  const pool = [];
+  for (let i = lo; i <= hi; i++) pool.push(i);
+  const out = [];
+  for (let i = 0; i < count; i++) out.push(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+  return out;
+}
+const statsT1 = {
+  name: 'Mean, median, mode',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const mean = ri(rnd, 5, 14);
+      let nums = null;
+      for (let tries = 0; tries < 50 && !nums; tries++) {
+        const first4 = [ri(rnd, 1, 20), ri(rnd, 1, 20), ri(rnd, 1, 20), ri(rnd, 1, 20)];
+        const fifth = 5 * mean - first4.reduce((a, b) => a + b, 0);
+        if (fifth >= 1 && fifth <= 20) nums = [...first4, fifth];
+      }
+      if (!nums) return statsT1.gen(rnd, heat);
+      return {
+        prompt: `What is the mean of ${nums.join(', ')}?`,
+        answer: { kind: 'int', v: mean },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Mean = <b>add them all up, divide by how many</b>.</p><p>Example: mean of 4, 8, 6, 10, 2 → 30 ÷ 5 = 6.</p><p><b>Your turn:</b> what’s your total? Divide by 5.</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const nums = pickDistinct(rnd, 5, 1, 30).sort((a, b) => a - b);
+      return {
+        prompt: `What is the median of ${nums.join(', ')}?`,
+        answer: { kind: 'int', v: nums[2] },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Median = the <b>middle value</b> when sorted (half above, half below).</p><p>Example: median of 3, 9, 4, 12, 7 → sorted 3, 4, 7, 9, 12 → middle is 7.</p><p><b>Your turn:</b> sort your numbers. What’s in the middle?</p>` },
+        ],
+      };
+    }
+    const v = ri(rnd, 1, 9), w = ri(rnd, 1, 9), u = ri(rnd, 1, 9);
+    if (v === w || v === u || w === u) return statsT1.gen(rnd, heat);
+    const nums = [v, v, v, w, w, u];
+    return {
+      prompt: `What is the mode of ${nums.join(', ')}?`,
+      answer: { kind: 'int', v },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Mode = the value that appears <b>most often</b>.</p><p>Example: mode of 2, 5, 2, 8, 5, 2 → 2 appears three times, more than any other.</p><p><b>Your turn:</b> count each value. Which shows up most?</p>` },
+        ],
+      };
+  },
+};
+function factorial(n) { let f = 1; for (let i = 2; i <= n; i++) f *= i; return f; }
+function choose(n, k) { return factorial(n) / (factorial(k) * factorial(n - k)); }
+const statsT2 = {
+  name: 'Probability & counting',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const red = ri(rnd, 2, 6), blue = ri(rnd, 3, 8);
+      return {
+        prompt: `A bag has ${red} red and ${blue} blue marbles. What is the probability of drawing red?`,
+        answer: { kind: 'fraction', n: red, d: red + blue },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Probability = <b>what you want ÷ everything</b>.</p><p>Example: 3 red, 5 blue → P(red) = 3/8.</p><p><b>Your turn:</b> how many marbles total? Red over total = ?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const n = ri(rnd, 3, 5);
+      return {
+        prompt: `How many ways can ${n} people line up?`,
+        answer: { kind: 'int', v: factorial(n) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Line-ups: <b>n! = n × (n−1) × … × 1</b> — choices shrink as spots fill.</p><p>Example: 4 people → 4 × 3 × 2 × 1 = 24.</p><p><b>Your turn:</b> ${n} × ${n - 1} × … × 1 = ?</p>` },
+        ],
+      };
+    }
+    const n = ri(rnd, 4, 7), k = ri(rnd, 2, 3);
+    return {
+      prompt: `How many ways can you choose ${k} toppings from ${n}? <span class="muted">(order doesn’t matter)</span>`,
+      answer: { kind: 'int', v: choose(n, k) },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Choosing (order doesn’t matter): <b>C(n,k) = n! / (k! (n−k)!)</b>.</p><p>Example: choose 2 from 5 → 5! / (2! × 3!) = 10.</p><p><b>Your turn:</b> ${n}! ÷ (${k}! × ${n - k}!) = ?</p>` },
+        ],
+      };
+  },
+};
+const statsT3 = {
+  name: 'Conditional & expected value',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const r = ri(rnd, 3, 5), b = ri(rnd, 4, 7);
+      return {
+        prompt: `A bag has ${r} red and ${b} blue marbles. You draw one, keep it, then draw another. What is the probability both are red?`,
+        answer: { kind: 'fraction', n: r * (r - 1), d: (r + b) * (r + b - 1) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Without replacement, the bag <b>changes</b> after the first draw. Multiply the two probabilities.</p><p>Example: 4 red, 6 blue. P = (4/10) × (3/9) = 12/90 = 2/15.</p><p><b>Your turn:</b> P(first red) = ? Then with one fewer red and one fewer total, P(second red) = ? Multiply.</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const pay = pick(rnd, [6, 12]);
+      return {
+        prompt: `A game pays $${pay} if you roll a 6 on a fair die, and $0 otherwise. What is the expected value? <span class="muted">(in dollars)</span>`,
+        answer: { kind: 'int', v: pay / 6 },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Expected value = <b>each outcome × its probability, added up</b>.</p><p>Example: win $6 with P = 1/6 → EV = 6 × 1/6 = 1.</p><p><b>Your turn:</b> ${pay} × (1/6) + 0 × (5/6) = ?</p>` },
+        ],
+      };
+    }
+    const sum = pick(rnd, [6, 7, 8]), ways = { 6: 5, 7: 6, 8: 5 }[sum];
+    return {
+      prompt: `What is the probability of rolling a sum of ${sum} with two dice?`,
+      answer: { kind: 'fraction', n: ways, d: 36 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Count the winning pairs out of all <b>36</b> pairs (6 × 6).</p><p>Example: sum of 7 → (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) → 6/36 = 1/6.</p><p><b>Your turn:</b> list the pairs that add to ${sum}. How many? Over 36.</p>` },
+        ],
+      };
+  },
+};
+
+/* ------------------------------ CALCULUS (12th) ------------------------------ */
+const calculusT1 = {
+  name: 'Limits & rates',
+  gen(rnd, heat) {
+    if (rnd() < 0.5) {
+      const a = ri(rnd, 1, 3), b = ri(rnd, -4, 4), c = ri(rnd, -5, 5), x0 = ri(rnd, 2, 5);
+      return {
+        prompt: `What is the limit of ${quadDisplay(a, b, c)} as x approaches ${x0}?`,
+        answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>For a polynomial, the limit is just <b>the value at that point</b> — plug in.</p><p>Example: limit of x² + 2x as x → 3 → 9 + 6 = 15.</p><p><b>Your turn:</b> plug ${x0} into your polynomial.</p>` },
+        ],
+      };
+    }
+    const x1 = ri(rnd, 1, 4), x2 = x1 + ri(rnd, 1, 4);
+    return {
+      prompt: `What is the average rate of change of f(x) = x² from x = ${x1} to x = ${x2}?`,
+      answer: { kind: 'int', v: x1 + x2 },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Average rate of change = <b>(f(x₂) − f(x₁)) / (x₂ − x₁)</b> — the slope between two points on the graph.</p><p>Example: f(x) = x² from 1 to 3 → (9 − 1) / 2 = 4.</p><p><b>Your turn:</b> f(${x1}) = ? f(${x2}) = ? Then divide the change in f by the change in x.</p>` },
+        ],
+      };
+  },
+};
+const calculusT2 = {
+  name: 'Derivatives',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = ri(rnd, 2, 5), b = ri(rnd, 1, 6), c = ri(rnd, -5, 5);
+      return {
+        prompt: `Find f′(x) for f(x) = ${quadDisplay(a, b, c)}. <span class="muted">Type it like 6x+2</span>`,
+        answer: { kind: 'text', accept: [fmtPoly([[1, 2 * a], [0, b]])], normalize: 'poly' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p><b>Power rule:</b> bring the exponent down and subtract one. Constants vanish.</p><p>Example: f(x) = 3x² + 2x → f′(x) = 6x + 2.</p><p><b>Your turn:</b> differentiate each term of your f(x).</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const x0 = ri(rnd, 2, 7);
+      return {
+        prompt: `What is the slope of the tangent to f(x) = x² at x = ${x0}?`,
+        answer: { kind: 'int', v: 2 * x0 },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Tangent slope at x₀ = <b>f′(x₀)</b>. For f(x) = x², f′(x) = 2x.</p><p>Example: at x = 4 → slope = 2 × 4 = 8.</p><p><b>Your turn:</b> 2 × ${x0} = ?</p>` },
+        ],
+      };
+    }
+    const a = ri(rnd, 2, 4), b = ri(rnd, 1, 5);
+    return {
+      prompt: `Find f′(x) for f(x) = x³ + ${a}x² + ${b}x. <span class="muted">Type it like 3x^2+4x</span>`,
+      answer: { kind: 'text', accept: [fmtPoly([[2, 3], [1, 2 * a], [0, b]])], normalize: 'poly' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Power rule, term by term: x³ → 3x², ax² → 2ax, bx → b.</p><p>Example: f(x) = x³ + 2x² + 3x → f′(x) = 3x² + 4x + 3.</p><p><b>Your turn:</b> differentiate each term of your f(x).</p>` },
+        ],
+      };
+  },
+};
+const calculusT3 = {
+  name: 'Integrals',
+  gen(rnd, heat) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
+      const a = pick(rnd, [2, 4, 6]), b = ri(rnd, 1, 6);
+      return {
+        prompt: `Find the antiderivative of ${a}x + ${b} (omit +C). <span class="muted">Type it like x^2+3x</span>`,
+        answer: { kind: 'text', accept: [fmtPoly([[2, a / 2], [1, b]])], normalize: 'poly' },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Antiderivative = <b>reverse power rule</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(2x + 3) dx = x² + 3x.</p><p><b>Your turn:</b> ${a}x becomes what? ${b} becomes what?</p>` },
+        ],
+      };
+    }
+    if (style === 1) {
+      const u = pick(rnd, [2, 4, 6]);
+      return {
+        prompt: `Evaluate the integral from 0 to ${u} of x dx.`,
+        answer: { kind: 'int', v: (u * u) / 2 },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>∫₀ᵘ x dx = [x²/2]₀ᵘ — evaluate the antiderivative at the top, minus at the bottom.</p><p>Example: ∫₀² x dx = 2²/2 − 0 = 2.</p><p><b>Your turn:</b> ${u}² / 2 = ?</p>` },
+        ],
+      };
+    }
+    const u = ri(rnd, 2, 5);
+    return {
+      prompt: `What is the area under f(x) = 2x from x = 0 to x = ${u}?`,
+      answer: { kind: 'int', v: u * u },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Area = the <b>definite integral</b>: antiderivative 2x → x², evaluated 0 to u.</p><p>Example: area under 2x from 0 to 3 = 3² = 9.</p><p><b>Your turn:</b> ${u}² = ?</p>` },
+        ],
+      };
+  },
+};
+
 /* ------------------------------ TOPIC REGISTRY ------------------------------ */
 // grades: per-tier US grade-level estimates (mainstream public-school
 // curriculum, Common Core era). Approximate — states/districts vary.
@@ -1079,5 +1893,13 @@ const TOPICS = [
   { id: 'systems', name: 'Systems of Equations', icon: '🔀', blurb: 'Two equations, one answer', grades: [8, 8, 8], tiers: [systemsT1, systemsT2, systemsT3] },
   { id: 'pythag', name: 'Pythagorean Theorem', icon: '📐', blurb: 'Right triangles & distance', grades: [8, 8, 8], tiers: [pythagT1, pythagT2, pythagT3] },
   { id: 'scinotation', name: 'Scientific Notation & Roots', icon: '🔬', blurb: 'Big/small numbers, square roots', grades: [8, 8, 8], tiers: [scinotT1, scinotT2, scinotT3] },
+  { id: 'quadratics', name: 'Quadratics', icon: '📉', blurb: 'Factor, solve & vertex form', grades: [9, 9, 10], tiers: [quadraticsT1, quadraticsT2, quadraticsT3] },
+  { id: 'geometry', name: 'Geometry', icon: '📏', blurb: 'Angles, triangles, circles', grades: [9, 10, 10], tiers: [geometryT1, geometryT2, geometryT3] },
+  { id: 'explogs', name: 'Exponents & Logarithms', icon: '⚡', blurb: 'Powers, exponential & log equations', grades: [10, 11, 11], tiers: [explogsT1, explogsT2, explogsT3] },
+  { id: 'functions', name: 'Functions', icon: '🧩', blurb: 'Evaluate, compose, invert', grades: [9, 10, 11], tiers: [functionsT1, functionsT2, functionsT3] },
+  { id: 'trig', name: 'Trigonometry', icon: '🌊', blurb: 'SOH CAH TOA, unit circle', grades: [11, 11, 12], tiers: [trigT1, trigT2, trigT3] },
+  { id: 'sequences', name: 'Sequences & Series', icon: '🔗', blurb: 'Arithmetic, geometric, infinite', grades: [11, 11, 12], tiers: [sequencesT1, sequencesT2, sequencesT3] },
+  { id: 'statistics', name: 'Statistics & Probability', icon: '🎲', blurb: 'Averages, counting, chance', grades: [10, 11, 11], tiers: [statsT1, statsT2, statsT3] },
+  { id: 'calculus', name: 'Calculus', icon: '♾️', blurb: 'Limits, derivatives, integrals', grades: [12, 12, 12], tiers: [calculusT1, calculusT2, calculusT3] },
 ];
 if (typeof module !== 'undefined') module.exports = { TOPICS, mulberry32 };

@@ -48,6 +48,44 @@ function asNumber(parsed) {
   return retry.kind === 'text' ? NaN : numVal(retry);
 }
 
+function fmtNum(v) {
+  return Number.isInteger(v) ? String(v) : String(Math.round(v * 1000) / 1000);
+}
+// Canonical polynomial form: "x^2+5x+6", "6x+2", "-x^2+3x-1".
+// Terms may arrive in any order, with +- signs and * (from the generic
+// ×/* -> x replacement) — parse into degree -> coefficient and re-emit.
+function normalizePoly(s) {
+  s = s.replace(/²/g, '^2').replace(/³/g, '^3');
+  const terms = s.match(/[+-]?[^+-]+/g) || [];
+  const byDeg = {};
+  for (let t of terms) {
+    let sign = 1;
+    if (t.startsWith('+')) t = t.slice(1);
+    else if (t.startsWith('-')) { sign = -1; t = t.slice(1); }
+    if (!t) continue;
+    const m = t.match(/^(\d*\.?\d*)x(?:\^(\d+))?$/);
+    if (m) {
+      const coeff = (m[1] === '' ? 1 : parseFloat(m[1])) * sign;
+      const deg = m[2] ? +m[2] : 1;
+      byDeg[deg] = (byDeg[deg] || 0) + coeff;
+    } else if (/^\d+\.?\d*$/.test(t)) {
+      byDeg[0] = (byDeg[0] || 0) + parseFloat(t) * sign;
+    } else {
+      return 'INVALID:' + s;
+    }
+  }
+  const degs = Object.keys(byDeg).map(Number).filter((d) => Math.abs(byDeg[d]) > 1e-9).sort((a, b) => b - a);
+  if (!degs.length) return '0';
+  let out = '';
+  degs.forEach((d, i) => {
+    const c = byDeg[d], abs = Math.abs(c);
+    out += (i === 0 ? (c < 0 ? '-' : '') : (c < 0 ? '-' : '+'));
+    out += d === 0 ? fmtNum(abs) : (abs === 1 ? '' : fmtNum(abs));
+    if (d !== 0) out += 'x' + (d === 1 ? '' : '^' + d);
+  });
+  return out;
+}
+
 function normalizeText(s, mode) {
   s = String(s).toLowerCase().replace(/[\s:]/g, '').replace(/×/g, 'x').replace(/\*/g, 'x').replace(/−/g, '-');
   if (mode === 'factorlist') {
@@ -65,6 +103,25 @@ function normalizeText(s, mode) {
   if (mode === 'scinot') {
     // 4.5e4, 4.5x10^4, 4.5*10^4 -> 4.5e4
     return s.replace(/x10\^/g, 'e');
+  }
+  if (mode === 'factored') {
+    // (x+3)(x-2) -> factors sorted by root: "x-2x+3"
+    const factors = [];
+    const re = /\(x([+-]\d+)\)/g;
+    let m;
+    while ((m = re.exec(s))) factors.push(+m[1]);
+    if (!factors.length) return 'INVALID:' + s;
+    return factors.sort((a, b) => a - b).map((f) => 'x' + (f >= 0 ? '+' + f : f)).join('');
+  }
+  if (mode === 'power') {
+    // x^12 — also accept x¹²-style superscript runs ("x^1^2" would be wrong)
+    const supMap = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+    return s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => '^' + [...m].map((c) => supMap[c]).join(''));
+  }
+  if (mode === 'poly') return normalizePoly(s);
+  if (mode === 'domain') {
+    // x>=3, x!=2 — accept unicode comparison signs too
+    return s.replace(/≥/g, '>=').replace(/≤/g, '<=').replace(/≠/g, '!=');
   }
   return s;
 }

@@ -77,6 +77,14 @@ Grade levels are estimates for the typical US public-school curriculum
 | 🔀 Systems of Equations | 8 | Where do lines meet? | Solve a system | Elimination |
 | 📐 Pythagorean Theorem | 8 | Find the hypotenuse | Find a missing leg | Word problems & distance |
 | 🔬 Scientific Notation & Roots | 8 | Notation basics | Multiply & divide powers | Square & cube roots |
+| 📉 Quadratics | 9–10 | Solve factored form | Factor & solve | Formula & vertex |
+| 📏 Geometry | 9–10 | Angles | Triangles & transversals | Circles & coordinates |
+| ⚡ Exponents & Logarithms | 10–11 | Exponent laws | Exponential equations & logs | Log properties |
+| 🧩 Functions | 9–11 | Evaluate | Composition & inverse | Domain & transformations |
+| 🌊 Trigonometry | 11–12 | Right-triangle trig | Unit circle | Equations & identities |
+| 🔗 Sequences & Series | 11–12 | nth term | Series sums | Recursive & infinite |
+| 🎲 Statistics & Probability | 10–11 | Mean, median, mode | Probability & counting | Conditional & expected value |
+| ♾️ Calculus | 12 | Limits & rates | Derivatives | Integrals |
 
 ## Tuning content from results
 
