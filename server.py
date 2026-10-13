@@ -61,6 +61,12 @@ with db_lock:
       PRIMARY KEY(user_id, topic));
     """)
     db.commit()
+    # migration: completion flag for section-complete (added 2026-10-13)
+    try:
+        db.execute("ALTER TABLE user_topics ADD COLUMN completed INTEGER DEFAULT 0")
+        db.commit()
+    except sqlite3.OperationalError:
+        pass  # column already exists
 
 TOKENINFO = "https://oauth2.googleapis.com/tokeninfo"
 
@@ -114,9 +120,10 @@ def topic_stats(uid):
     out = {}
     with db_lock:
         rows = db.execute(
-            "SELECT topic, tier, heat FROM user_topics WHERE user_id=?", (uid,)).fetchall()
+            "SELECT topic, tier, heat, completed FROM user_topics WHERE user_id=?", (uid,)).fetchall()
         tiers = {r["topic"]: r["tier"] for r in rows}
         heats = {r["topic"]: r["heat"] for r in rows}
+        completed = {r["topic"]: bool(r["completed"]) for r in rows}
         for (topic,) in db.execute("SELECT DISTINCT topic FROM attempts WHERE user_id=?", (uid,)):
             last = db.execute(
                 "SELECT correct FROM attempts WHERE user_id=? AND topic=? ORDER BY id DESC LIMIT 20",
@@ -128,7 +135,7 @@ def topic_stats(uid):
             acc8 = sum(r["correct"] for r in last8) / len(last8)
             out[topic] = {"mastery": round(acc * 100, 1), "accuracy8": round(acc8, 3),
                           "tier": tiers.get(topic, 0), "heat": heats.get(topic, 0.4),
-                          "attempted": len(last)}
+                          "attempted": len(last), "completed": completed.get(topic, False)}
     return out
 
 
@@ -236,10 +243,23 @@ def record_attempt(uid, topic, tier, correct, attempts_used, hints_used):
                 new_badges.append(bid)
         db.execute("UPDATE profile SET badges=? WHERE user_id=?", (json.dumps(sorted(earned)), uid))
         db.commit()
+    # section completion: 8 correct at the hardest tier (tier index 2), first time only
+    topic_completed = False
+    if correct and tier == 2:
+        with db_lock:
+            n = db.execute("SELECT COUNT(*) c FROM attempts WHERE user_id=? AND topic=? AND tier=2 AND correct=1",
+                           (uid, topic)).fetchone()["c"]
+            done = db.execute("SELECT completed FROM user_topics WHERE user_id=? AND topic=?",
+                              (uid, topic)).fetchone()
+            if n >= 8 and (not done or not done["completed"]):
+                db.execute("UPDATE user_topics SET completed=1 WHERE user_id=? AND topic=?",
+                           (uid, topic))
+                db.commit()
+                topic_completed = True
     stats = full_stats(uid)
     return {"xp_earned": xp_earned, "leveled_up": stats["level"] > old_level,
             "new_badges": new_badges, "suggest": {"tier": suggest_tier, "heat": heat},
-            "stats": stats}
+            "topic_completed": topic_completed, "stats": stats}
 
 
 MIME = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",

@@ -8,7 +8,7 @@ const state = {
   user: null, stats: null, clientId: null, isParent: false,
   topic: null, tier: 0, problem: null, attempts: 0, hintsShown: 0,
   seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0,
-  route: '', pendingRoute: '',
+  route: '', pendingRoute: '', completeTimer: null,
 };
 
 function rnd() {
@@ -114,6 +114,7 @@ function parseRoute(hash) {
   return { screen: 'home' };
 }
 function navigate(route, push = true) {
+  clearTimeout(state.completeTimer); // a manual move cancels any pending auto-advance
   if (push) history.pushState({ route }, '', '#/' + route);
   state.route = route;
   applyRoute(route);
@@ -235,9 +236,10 @@ function renderHome() {
     }).join('');
     const gMin = Math.min(...t.grades), gMax = Math.max(...t.grades);
     const gradeLabel = gMin === gMax ? `Grade ${gMin}` : `Grades ${gMin}–${gMax}`;
+    const done = ts.completed ? `<span class="done-badge">✓ Completed</span>` : '';
     card.innerHTML = `
       <div class="topic-icon">${t.icon}</div>
-      <div class="topic-name">${t.name}</div>
+      <div class="topic-name">${t.name} ${done}</div>
       <div class="topic-blurb">${t.blurb}</div>
       <div class="grade-label">📚 ${gradeLabel}</div>
       <div class="tier-row">${tierPills}<span class="tier-name">${t.tiers[ts.tier].name}</span></div>
@@ -275,6 +277,7 @@ function startTopic(id, push = true) {
 }
 
 function newProblem() {
+  clearTimeout(state.completeTimer);
   const ts = (state.stats.topics && state.stats.topics[state.topic.id]) || { heat: 0.4 };
   state.seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
   const tierDef = state.topic.tiers[state.tier];
@@ -337,6 +340,47 @@ async function checkAnswer() {
   }
 }
 
+function nextIncompleteTopic(excludeId) {
+  for (const t of TOPICS) {
+    if (t.id === excludeId) continue;
+    const ts = state.stats.topics && state.stats.topics[t.id];
+    if (!ts || !ts.completed) return t;
+  }
+  return null;
+}
+
+function onTopicComplete() {
+  // Celebration + auto-advance to the next uncompleted quest.
+  const next = nextIncompleteTopic(state.topic.id);
+  const fb = $('#feedback');
+  fb.className = 'feedback right';
+  fb.innerHTML = `🎉 <b>Section complete!</b> You finished ${state.topic.name}! ${next ? `Next up: ${next.icon} ${next.name}.` : 'You finished every quest!'}`;
+  $('#answer-input').disabled = true;
+  $('#check-btn').disabled = true;
+  $('#hint-btn').style.display = 'none';
+  $('#next-btn').style.display = 'none';
+  const rc = $('#recap-card');
+  rc.style.display = '';
+  rc.innerHTML = `<h4>🏆 ${state.topic.name} — complete!</h4>
+    <p>You answered 8 problems correctly at the hardest tier. ${next ? `Moving to <b>${next.name}</b> in a moment…` : 'Amazing — every quest is done!'}</p>
+    <p>
+      ${next ? `<button class="btn primary" id="goto-next">Next quest →</button> ` : `<button class="btn primary" id="goto-next">Back to quests</button> `}
+      <button class="btn ghost" id="stay-here">Keep practicing here</button>
+    </p>`;
+  const go = () => { clearTimeout(state.completeTimer); if (next) startTopic(next.id); else navigate(''); };
+  $('#goto-next').onclick = go;
+  $('#stay-here').onclick = () => {
+    clearTimeout(state.completeTimer);
+    rc.style.display = 'none';
+    fb.innerHTML = 'Staying here — keep going! 💪';
+    const nb = $('#next-btn');
+    nb.style.display = '';
+    nb.onclick = newProblem;
+  };
+  clearTimeout(state.completeTimer);
+  state.completeTimer = setTimeout(go, 5000);
+}
+
 function onCorrect(r) {
   const fb = $('#feedback');
   fb.className = 'feedback right';
@@ -362,6 +406,9 @@ function onCorrect(r) {
     state.tier = r.suggest.tier;
   }
   if (extra) fb.innerHTML += extra;
+
+  // Section complete beats the ordinary next-problem flow.
+  if (r.topic_completed) { onTopicComplete(); return; }
 
   const nb = $('#next-btn');
   nb.style.display = '';
