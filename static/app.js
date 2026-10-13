@@ -4,6 +4,15 @@
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 
+/* Tier difficulty: Tier 1/2/3 = Easy/Medium/Difficult, with a visual chip
+   (color + filled dots + word, so it reads even without color). */
+const DIFFICULTY = ['Easy', 'Medium', 'Difficult'];
+const DIFF_CLASS = ['diff-easy', 'diff-medium', 'diff-hard'];
+const DIFF_DOTS = ['●○○', '●●○', '●●●'];
+function diffChip(tier) {
+  return `<span class="diff-chip ${DIFF_CLASS[tier]}" title="Tier ${tier + 1} — ${DIFFICULTY[tier]}">${DIFF_DOTS[tier]} ${DIFFICULTY[tier]}</span>`;
+}
+
 const state = {
   user: null, stats: null, clientId: null, isParent: false,
   topic: null, tier: 0, problem: null, attempts: 0, hintsShown: 0,
@@ -232,7 +241,7 @@ function renderHome() {
     card.className = 'topic-card';
     const tierPills = t.tiers.map((tr, i) => {
       const unlocked = i <= ts.tier;
-      return `<span class="tier-pill ${unlocked ? 'open' : 'locked'}" title="${tr.name}">${unlocked ? (i + 1) : '🔒'}</span>`;
+      return `<span class="tier-pill ${unlocked ? 'open' : 'locked'} ${DIFF_CLASS[i]}" title="${tr.name} — ${DIFFICULTY[i]}">${unlocked ? (i + 1) : '🔒'}</span>`;
     }).join('');
     const gMin = Math.min(...t.grades), gMax = Math.max(...t.grades);
     const gradeLabel = gMin === gMax ? `Grade ${gMin}` : `Grades ${gMin}–${gMax}`;
@@ -283,7 +292,7 @@ function newProblem() {
   const tierDef = state.topic.tiers[state.tier];
   state.problem = tierDef.gen(rnd, ts.heat == null ? 0.4 : ts.heat);
   state.attempts = 0; state.hintsShown = 0;
-  $('#tier-label').textContent = `Tier ${state.tier + 1} · Grade ${state.topic.grades[state.tier]} · ${tierDef.name}`;
+  $('#tier-label').innerHTML = `${diffChip(state.tier)} Grade ${state.topic.grades[state.tier]} · ${tierDef.name}`;
   $('#problem-prompt').innerHTML = state.problem.prompt;
   $('#answer-input').value = '';
   $('#answer-input').disabled = false;
@@ -399,10 +408,10 @@ function onCorrect(r) {
     if (def) extra += `<div class="celebrate">🏅 New badge: <b>${def.icon} ${def.name}</b> — ${def.desc}</div>`;
   }
   if (r.suggest && r.suggest.tier > state.tier) {
-    extra += `<div class="celebrate">🚀 You unlocked <b>Tier ${r.suggest.tier + 1}</b> — harder problems ahead!</div>`;
+    extra += `<div class="celebrate">🚀 You unlocked <b>Tier ${r.suggest.tier + 1}</b> ${diffChip(r.suggest.tier)} — harder problems ahead!</div>`;
     state.tier = r.suggest.tier;
   } else if (r.suggest && r.suggest.tier < state.tier) {
-    extra += `<div class="celebrate">💡 Dropping to <b>Tier ${r.suggest.tier + 1}</b> for now — you'll climb back!</div>`;
+    extra += `<div class="celebrate">💡 Dropping to <b>Tier ${r.suggest.tier + 1}</b> ${diffChip(r.suggest.tier)} for now — you'll climb back!</div>`;
     state.tier = r.suggest.tier;
   }
   if (extra) fb.innerHTML += extra;
