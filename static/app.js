@@ -568,8 +568,71 @@ async function showLeaderboard() {
   showScreen('leaderboard');
 }
 
+/* ------------------------------ on-screen keypad ------------------------------ */
+// Every key inserts a character the answer checker accepts (verified
+// against normalizeText / parseAnswer and the curriculum's accepted
+// answers). Clicking inserts at the cursor, never clobbers typed text.
+const KEYPAD_ROWS = [
+  ['7', '8', '9', '/', '^', { label: '⌫', action: 'back', cls: 'edit', aria: 'Backspace' }],
+  ['4', '5', '6', '(', ')', { label: 'C', action: 'clear', cls: 'edit', aria: 'Clear' }],
+  ['1', '2', '3', '-', '+', '='],
+  ['0', '.', ',', 'x', { label: '␣', insert: ' ', cls: 'wide', aria: 'Space' }],
+  ['≤', '≥', '≠', 'π', '√', 'e'],
+];
+function keypadInsert(ch) {
+  const input = $('#answer-input');
+  const start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? input.value.length;
+  input.setRangeText(ch, start, end, 'end');
+  input.focus();
+}
+function keypadBackspace() {
+  const input = $('#answer-input');
+  let start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? input.value.length;
+  if (start === end && start > 0) start--;
+  input.setRangeText('', start, end, 'end');
+  input.focus();
+}
+function buildKeypad() {
+  const pad = $('#keypad');
+  if (!pad) return;
+  for (const row of KEYPAD_ROWS) {
+    for (const k of row) {
+      const key = typeof k === 'string' ? { label: k, insert: k } : k;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = key.label;
+      if (key.cls) btn.className = key.cls;
+      if (key.aria) btn.setAttribute('aria-label', key.aria);
+      // mousedown preventDefault keeps focus (and the cursor) in the
+      // answer input, so tapping a key never blurs it or summons the OS
+      // keyboard on touch devices.
+      btn.addEventListener('mousedown', (e) => e.preventDefault());
+      btn.addEventListener('click', () => {
+        if (key.action === 'back') keypadBackspace();
+        else if (key.action === 'clear') {
+          const input = $('#answer-input');
+          input.value = ''; input.focus();
+        } else keypadInsert(key.insert);
+      });
+      pad.appendChild(btn);
+    }
+  }
+}
+// iOS renders inputmode="decimal" as a number pad with NO minus key —
+// the friend's missing minus. Give iOS the full keyboard instead;
+// every other platform keeps the numeric pad.
+function fixIosInputMode() {
+  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isiOS) $('#answer-input').inputMode = 'text';
+}
+
 /* --------------------------------- wiring --------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  buildKeypad();
+  fixIosInputMode();
   $('#check-btn').onclick = checkAnswer;
   $('#answer-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
   $('#hint-btn').onclick = showHint;

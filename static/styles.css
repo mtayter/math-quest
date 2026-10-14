@@ -105,6 +105,13 @@ h2.section { margin: 28px 4px 12px; font-size: 20px; }
 #problem-prompt .frac .fnum { display: block; border-bottom: 2px solid var(--ink); padding: 0 8px; }
 #problem-prompt .frac .fden { display: block; padding: 0 8px; }
 .answer-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+/* On-screen keypad: always visible, 6-column grid. Keys insert at the
+   cursor; every key is a character the answer checker accepts. */
+.keypad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 16px auto 0; max-width: 480px; }
+.keypad button { border: 1px solid var(--line); border-radius: 10px; background: #f8fafc; color: var(--ink); font-size: 18px; font-weight: 700; min-height: 46px; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.keypad button:active { background: #e2e8f0; transform: scale(.97); }
+.keypad button.wide { grid-column: span 2; }
+.keypad button.edit { background: #fef3c7; border-color: #fcd34d; }
 #answer-input { font-size: 24px; padding: 12px 16px; border: 2px solid var(--line); border-radius: 12px; width: 220px; text-align: center; outline: none; }
 #answer-input:focus { border-color: var(--green); }
 #answer-input:disabled { background: #f8fafc; }

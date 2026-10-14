@@ -40,6 +40,11 @@ and progress saved per Google account.
   same colors, so the difficulty is visible at a glance.
 - **Leaderboard:** every signed-in player can see everyone's XP, streaks, and
   per-topic accuracy (names + stats only — no emails).
+- **Answer input:** typed answers plus an always-visible on-screen keypad
+  (digits, operators, `^` `(` `)` `=` `x`, space, `e`, `≤` `≥` `≠` `π` `√`,
+  backspace, clear) — every key inserts a character the checker accepts, at
+  the cursor. iOS gets `inputmode="text"` instead of `"decimal"`, because
+  iOS renders the decimal pad with no minus key.
 - **Self-update:** the SPA polls `/api/version` (a hash of the static files) and
   shows a refresh banner when a deploy lands; on the home screen it reloads
   automatically after a 10-second countdown.
@@ -185,7 +190,3 @@ Every attempt is logged in SQLite (`attempts` table: user, topic, tier, correct,
 attempts_used, hints_used, xp, timestamp). Query per-topic accuracy to find weak
 spots, then add/adjust generators in `static/curriculum.js` — each tier is one
 `gen(rnd, heat)` function returning `{prompt, answer, hints}`.
-
-## License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE).
