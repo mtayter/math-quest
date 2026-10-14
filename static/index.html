@@ -9,6 +9,11 @@
 </head>
 <body>
 
+<div id="update-banner" style="display:none">
+  <span id="update-banner-text">A new version of Math Quest is available.</span>
+  <button class="btn primary" id="update-refresh-btn">Refresh</button>
+</div>
+
 <!-- ============ SIGN IN ============ -->
 <div class="screen" id="screen-signin">
   <div class="hero">
@@ -34,7 +39,7 @@
     <div class="xp-wrap"><div class="xp-bar"><div id="xp-fill"></div></div><span id="xp-text"></span></div>
     <span id="streak-flame"></span>
     <span class="spacer"></span>
-    <button class="linkbtn" id="parent-link" style="display:none">Family stats</button>
+    <button class="linkbtn" id="leaderboard-link">🏆 Leaderboard</button>
     <button class="linkbtn" id="logout-btn">Sign out</button>
   </div>
 
@@ -75,15 +80,17 @@
   <div style="text-align:center"><button class="btn primary" id="next-btn">Next →</button></div>
 </div>
 
-<!-- ============ FAMILY (parents) ============ -->
-<div class="screen" id="screen-family">
+<!-- ============ LEADERBOARD ============ -->
+<div class="screen" id="screen-leaderboard">
   <div class="play-head">
-    <button class="btn ghost" id="family-back">← Back</button>
-    <span id="play-topic">Family stats 👨‍👩‍👧‍👦</span>
+    <button class="btn ghost" id="leaderboard-back">← Back</button>
+    <span id="play-topic">Leaderboard 🏆</span>
   </div>
-  <p class="muted">Per-topic accuracy for everyone — use it to tune the curriculum.</p>
+  <p class="muted">Everyone's progress — XP, streaks, and per-topic accuracy.</p>
   <div id="family-table"></div>
 </div>
+
+<footer class="site-footer"><a href="/math/privacy.html">Privacy Policy</a></footer>
 
 <script src="/math/static/curriculum.js"></script>
 <script src="/math/static/app.js"></script>

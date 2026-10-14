@@ -13,7 +13,7 @@ and progress saved per Google account.
 - **Backend:** Python 3, stdlib only — no pip dependencies (`server.py` + SQLite).
 - **Auth:** Sign in with Google (Google Identity Services). The server verifies the
   ID token via Google's `tokeninfo` endpoint and keeps a 30-day session cookie.
-- **Curriculum** (`static/curriculum.js`): 8 topics × 3 tiers. Every problem is
+- **Curriculum** (`static/curriculum.js`): 20 topics × 3 tiers, grades 4–12. Every problem is
   generated procedurally, with a hand-written Socratic hint ladder per problem type.
   Hints explain the method using a *parallel worked example* (different numbers)
   and ask guiding questions — they never compute the player's specific numbers.
@@ -21,14 +21,17 @@ and progress saved per Google account.
   problem of the same type (the answer is never revealed, so guessing can't converge).
 - **Adaptive difficulty:** rolling accuracy promotes/demotes tiers and scales
   number ranges (`heat`) per topic.
-- **Parents:** put your email in `parent_emails` in `config.json` to unlock the
-  Family stats view (per-topic accuracy per player — use it to tune the curriculum).
+- **Leaderboard:** every signed-in player can see everyone's XP, streaks, and
+  per-topic accuracy (names + stats only — no emails).
+- **Self-update:** the SPA polls `/api/version` (a hash of the static files) and
+  shows a refresh banner when a deploy lands; on the home screen it reloads
+  automatically after a 10-second countdown.
+- **Privacy:** see [Privacy Policy](https://mtayter.noip.me/math/privacy.html).
 
 ## Setup
 
 1. Copy `config.example.json` → `config.json` and fill in:
    - `google_client_id` — see "Google OAuth client" below.
-   - `parent_emails` — emails that can see the Family stats view.
 2. Run: `python3 server.py` (listens on 127.0.0.1:18791 by default).
 
 ### Google OAuth client (2 minutes, one time)
@@ -40,7 +43,10 @@ and progress saved per Google account.
 4. If prompted, configure the OAuth consent screen (External, app name "Math Quest").
    For a kid's supervised Google account, the parent must allow third-party sign-in
    in Family Link.
-5. Paste the client ID into `config.json` as `google_client_id` and restart.
+5. To open sign-in to anyone (not just test users), click **Publish app** on the
+   OAuth consent screen. Use `https://mtayter.noip.me/math/privacy.html` as the
+   privacy policy URL if asked.
+6. Paste the client ID into `config.json` as `google_client_id` and restart.
 
 ## Deployment (home server)
 

@@ -4,12 +4,14 @@
 Routes (an optional /math prefix is stripped, so it works behind the Apache
 /math/ proxy as well as directly):
   GET  /                      -> index.html
+  GET  /privacy.html          -> privacy policy
   GET  /static/<path>         -> static files
   GET  /api/config            -> {google_client_id}
+  GET  /api/version           -> {version} (hash of static-file mtimes, for SPA self-update)
   POST /api/auth              {id_token} -> verifies via Google, sets session cookie
   GET  /api/me                -> user + stats (auth required)
   POST /api/attempt           {topic,tier,correct,attempts_used,hints_used} (auth)
-  GET  /api/family            -> per-user stats (parent emails only)
+  GET  /api/leaderboard       -> per-user stats (any signed-in player; names + stats, no emails)
   POST /api/logout
 """
 import hashlib
@@ -30,7 +32,7 @@ STATIC = os.path.join(HERE, "static")
 DB_PATH = os.path.join(HERE, "mathquest.db")
 CONFIG_PATH = os.path.join(HERE, "config.json")
 
-config = {"google_client_id": "", "parent_emails": [], "port": 18791}
+config = {"google_client_id": "", "port": 18791}
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH) as f:
         config.update(json.load(f))
@@ -323,10 +325,21 @@ class Handler(BaseHTTPRequestHandler):
         path = self._strip_prefix(urllib.parse.urlparse(self.path).path)
         if path in ("/", ""):
             return self._serve_file("index.html")
+        if path == "/privacy.html":
+            return self._serve_file("privacy.html")
         if path.startswith("/static/"):
             return self._serve_file(path[len("/static/"):])
         if path == "/api/config":
             return self._json(200, {"google_client_id": config.get("google_client_id", "")})
+        if path == "/api/version":
+            # Hash of static-file mtimes: changes whenever a deploy lands,
+            # so the SPA can notice a newer version without manual bumps.
+            h = hashlib.sha256()
+            for name in sorted(os.listdir(STATIC)):
+                full = os.path.join(STATIC, name)
+                if os.path.isfile(full):
+                    h.update(f"{name}:{os.path.getmtime(full)}".encode())
+            return self._json(200, {"version": h.hexdigest()[:12]})
         if path == "/api/me":
             uid = self._session_user()
             if not uid:
@@ -336,16 +349,13 @@ class Handler(BaseHTTPRequestHandler):
             u = get_user(uid)
             return self._json(200, {"ok": True,
                                     "user": {"name": u["name"], "email": u["email"], "picture": u["picture"]},
-                                    "stats": full_stats(uid),
-                                    "is_parent": (u["email"] or "").lower() in
-                                    [e.lower() for e in config.get("parent_emails", [])]})
-        if path == "/api/family":
+                                    "stats": full_stats(uid)})
+        if path in ("/api/leaderboard", "/api/family"):  # /api/family: legacy alias
             uid = self._session_user()
             if not uid:
                 return self._json(401, {"ok": False})
-            u = get_user(uid)
-            if (u["email"] or "").lower() not in [e.lower() for e in config.get("parent_emails", [])]:
-                return self._json(403, {"ok": False})
+            # Open to every signed-in player. Names + stats only — no emails:
+            # the app is open to anyone with a Google account now.
             users = []
             with db_lock:
                 rows = db.execute("SELECT * FROM users ORDER BY created_at").fetchall()
@@ -360,7 +370,7 @@ class Handler(BaseHTTPRequestHandler):
                     topics[tid] = {"correct": rr["s"] or 0, "attempted": rr["c"],
                                    "accuracy": (rr["s"] or 0) / rr["c"] if rr["c"] else 0,
                                    "tier": t["tier"]}
-                users.append({"name": r["name"], "email": r["email"], "xp": st["xp"],
+                users.append({"name": r["name"], "xp": st["xp"],
                               "level": st["level"], "day_streak": st["day_streak"],
                               "total_correct": st["total_correct"], "topics": topics})
             return self._json(200, {"ok": True, "users": users})
@@ -378,7 +388,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", MIME.get(ext, "application/octet-stream"))
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "public, max-age=300")
+        self.send_header("Cache-Control", "no-store")  # SPA self-update relies on fresh files
         self.send_header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
         self.end_headers()
         self.wfile.write(data)
@@ -406,9 +416,7 @@ class Handler(BaseHTTPRequestHandler):
                       f"SameSite=Lax; Secure")
             return self._json(200, {"ok": True,
                                     "user": {"name": u["name"], "email": u["email"], "picture": u["picture"]},
-                                    "stats": full_stats(uid),
-                                    "is_parent": (u["email"] or "").lower() in
-                                    [e.lower() for e in config.get("parent_emails", [])]},
+                                    "stats": full_stats(uid)},
                               cookies=[cookie])
         if path == "/api/logout":
             uid = self._session_user()

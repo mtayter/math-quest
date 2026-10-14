@@ -14,10 +14,11 @@ function diffChip(tier) {
 }
 
 const state = {
-  user: null, stats: null, clientId: null, isParent: false,
+  user: null, stats: null, clientId: null,
   topic: null, tier: 0, problem: null, attempts: 0, hintsShown: 0,
   seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0,
   route: '', pendingRoute: '', completeTimer: null,
+  appVersion: null, updateReloadTimer: null, updateSeen: false,
 };
 
 function rnd() {
@@ -167,20 +168,20 @@ function showScreen(name) {
 }
 
 /* -------------------------------- routing -------------------------------- */
-// Hash routing: #/ home, #/play/<topicId>, #/family, #/signin.
-// Hash (not path) routing so refresh and deep links never ask the server
-// for a route it doesn't serve — the backend only serves /, /static/*, /api/*.
+// Hash routing: #/ home, #/play/<topicId>, #/leaderboard, #/signin.
+// #/family still works (old name for the leaderboard).
 function parseRoute(hash) {
   const clean = String(hash || '').replace(/^#\/?/, '');
   if (!clean) return { screen: 'home' };
   if (clean === 'signin') return { screen: 'signin' };
-  if (clean === 'family') return { screen: 'family' };
+  if (clean === 'family' || clean === 'leaderboard') return { screen: 'leaderboard' };
   const m = clean.match(/^play\/([a-z0-9-]+)$/);
   if (m && TOPICS.some((t) => t.id === m[1])) return { screen: 'play', topic: m[1] };
   return { screen: 'home' };
 }
 function navigate(route, push = true) {
   clearTimeout(state.completeTimer); // a manual move cancels any pending auto-advance
+  clearTimeout(state.updateReloadTimer); // and any pending auto-reload for an update
   if (push) history.pushState({ route }, '', '#/' + route);
   state.route = route;
   applyRoute(route);
@@ -190,7 +191,7 @@ function applyRoute(route) {
   if (r.screen === 'signin') { showScreen('signin'); initSignIn(); return; }
   if (!state.user) { state.pendingRoute = route; showScreen('signin'); initSignIn(); return; }
   if (r.screen === 'home') { renderHome(); showScreen('home'); return; }
-  if (r.screen === 'family') { showFamily(); return; }
+  if (r.screen === 'leaderboard') { showLeaderboard(); return; }
   if (r.screen === 'play') { startTopic(r.topic, false); return; }
 }
 window.addEventListener('popstate', () => {
@@ -199,13 +200,49 @@ window.addEventListener('popstate', () => {
   applyRoute(route);
 });
 
+/* ------------------------------ self-update ------------------------------ */
+// The SPA polls /api/version (a hash of the static files' mtimes). When a
+// deploy lands, show a banner. On the home screen it's safe to reload
+// automatically after a countdown; mid-problem, just offer Refresh —
+// reloading there would drop the in-progress problem.
+async function checkVersion() {
+  let v;
+  try {
+    const res = await fetch('/math/api/version', { cache: 'no-store' });
+    v = (await res.json()).version;
+  } catch (e) { return; } // offline / server hiccup: ignore, retry next poll
+  if (!state.appVersion) { state.appVersion = v; return; }
+  if (v === state.appVersion || state.updateSeen) return;
+  state.updateSeen = true;
+  $('#update-banner').style.display = '';
+  $('#update-refresh-btn').onclick = () => location.reload();
+  if (document.querySelector('#screen-home.active')) {
+    let secs = 10;
+    const tick = () => {
+      $('#update-banner-text').textContent = `A new version of Math Quest is available — refreshing in ${secs}s…`;
+      if (secs <= 0) { location.reload(); return; }
+      secs--;
+      state.updateReloadTimer = setTimeout(tick, 1000);
+    };
+    tick();
+  } else {
+    $('#update-banner-text').textContent = 'A new version of Math Quest is available — refresh when you finish this problem.';
+  }
+}
+function startVersionPolling() {
+  checkVersion();
+  setInterval(checkVersion, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
+}
+
 /* --------------------------------- auth ---------------------------------- */
 async function boot() {
+  startVersionPolling();
   const cfg = await api('/math/api/config');
   state.clientId = cfg.google_client_id || null;
   const me = await api('/math/api/me');
   if (me && me.ok) {
-    state.user = me.user; state.stats = me.stats; state.isParent = !!me.is_parent;
+    state.user = me.user; state.stats = me.stats;
     // Restore the routed page on refresh / deep link; '' = home.
     applyRoute(location.hash.replace(/^#\/?/, ''));
   } else {
@@ -242,7 +279,7 @@ function initSignIn() {
 async function onGoogleCredential(resp) {
   const r = await api('/math/api/auth', { method: 'POST', body: JSON.stringify({ id_token: resp.credential }) });
   if (r && r.ok) {
-    state.user = r.user; state.stats = r.stats; state.isParent = !!r.is_parent;
+    state.user = r.user; state.stats = r.stats;
     // After sign-in, go where the deep link (or refresh) pointed, if anywhere.
     const pending = state.pendingRoute || '';
     state.pendingRoute = '';
@@ -325,8 +362,6 @@ function renderHome() {
     el.innerHTML = `<div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>`;
     bw.appendChild(el);
   }
-
-  $('#parent-link').style.display = state.isParent ? '' : 'none';
 }
 
 /* -------------------------------- game loop ------------------------------- */
@@ -511,9 +546,9 @@ function showHint() {
   if (state.hintsShown >= hints.length) $('#hint-btn').style.display = 'none';
 }
 
-/* ------------------------------ parent view ------------------------------ */
-async function showFamily() {
-  const r = await api('/math/api/family');
+/* ------------------------------ leaderboard ------------------------------ */
+async function showLeaderboard() {
+  const r = await api('/math/api/leaderboard');
   if (!r || !r.ok) return;
   const wrap = $('#family-table'); wrap.innerHTML = '';
   for (const u of r.users) {
@@ -525,12 +560,12 @@ async function showFamily() {
     }).join('');
     const card = document.createElement('div');
     card.className = 'family-card';
-    card.innerHTML = `<h3>${u.name} <span class="muted">(${u.email})</span></h3>
+    card.innerHTML = `<h3>${u.name}</h3>
       <p>Level ${u.level} · ${u.xp} XP · 🔥 ${u.day_streak}d streak · ${u.total_correct} correct</p>
       <table><tr><th>Topic</th><th>Correct</th><th>Accuracy</th><th>Tier</th></tr>${rows || '<tr><td colspan=4 class="muted">no attempts yet</td></tr>'}</table>`;
     wrap.appendChild(card);
   }
-  showScreen('family');
+  showScreen('leaderboard');
 }
 
 /* --------------------------------- wiring --------------------------------- */
@@ -540,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#hint-btn').onclick = showHint;
   $('#quit-btn').onclick = () => navigate('');
   $('#logout-btn').onclick = logout;
-  $('#parent-link').onclick = () => navigate('family');
-  $('#family-back').onclick = () => navigate('');
+  $('#leaderboard-link').onclick = () => navigate('leaderboard');
+  $('#leaderboard-back').onclick = () => navigate('');
   boot();
 });
