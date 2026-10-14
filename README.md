@@ -185,3 +185,7 @@ Every attempt is logged in SQLite (`attempts` table: user, topic, tier, correct,
 attempts_used, hints_used, xp, timestamp). Query per-topic accuracy to find weak
 spots, then add/adjust generators in `static/curriculum.js` — each tier is one
 `gen(rnd, heat)` function returning `{prompt, answer, hints}`.
+
+## License
+
+This project is licensed under the MIT License — see [LICENSE](LICENSE).
