@@ -259,7 +259,7 @@ function initSignIn() {
       <ol>
         <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud → Credentials</a></li>
         <li>Create Credentials → <b>OAuth client ID</b> → Web application</li>
-        <li>Under <b>Authorized JavaScript origins</b>, add <code>https://mtayter.noip.me</code></li>
+        <li>Under <b>Authorized JavaScript origins</b>, add <code>${location.origin}</code> (this site's own origin)</li>
         <li>Copy the client ID into <code>config.json</code> as <code>google_client_id</code> and restart the service</li>
       </ol></div>`;
     return;

@@ -1,11 +1,14 @@
+# Template: install.sh generates the real unit
+# (~/.config/systemd/user/math-quest.service) with the actual checkout
+# path. Do not copy this file verbatim — replace <user> and the path.
 [Unit]
 Description=Math Quest - gamified math practice for kids
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/slick/math-quest
-ExecStart=/usr/bin/python3 /home/slick/math-quest/server.py
+WorkingDirectory=/home/<user>/math-quest
+ExecStart=/usr/bin/python3 /home/<user>/math-quest/server.py
 Restart=always
 RestartSec=5
 
