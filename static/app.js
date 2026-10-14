@@ -396,7 +396,12 @@ function newProblem() {
   $('#next-btn').style.display = 'none';
   $('#recap-card').style.display = 'none';
   renderAttemptDots();
-  setTimeout(() => $('#answer-input').focus(), 60);
+  // Auto-focus the input for keyboard users — but only on fine-pointer
+  // (mouse) devices. On touch devices focusing summons the OS keyboard,
+  // which keypad users don't want; they tap the input if they want it.
+  if (window.matchMedia('(pointer: fine)').matches) {
+    setTimeout(() => $('#answer-input').focus(), 60);
+  }
 }
 
 function renderAttemptDots() {
@@ -584,7 +589,9 @@ function keypadInsert(ch) {
   const start = input.selectionStart ?? input.value.length;
   const end = input.selectionEnd ?? input.value.length;
   input.setRangeText(ch, start, end, 'end');
-  input.focus();
+  // Deliberately NO input.focus() here: focusing a text input summons the
+  // OS keyboard on touch devices, which defeats the purpose of the keypad.
+  // setRangeText still updates the cursor on an unfocused input.
 }
 function keypadBackspace() {
   const input = $('#answer-input');
@@ -592,7 +599,7 @@ function keypadBackspace() {
   const end = input.selectionEnd ?? input.value.length;
   if (start === end && start > 0) start--;
   input.setRangeText('', start, end, 'end');
-  input.focus();
+  // No focus() — see keypadInsert.
 }
 function buildKeypad() {
   const pad = $('#keypad');
@@ -613,7 +620,7 @@ function buildKeypad() {
         if (key.action === 'back') keypadBackspace();
         else if (key.action === 'clear') {
           const input = $('#answer-input');
-          input.value = ''; input.focus();
+          input.value = ''; // no focus() — see keypadInsert
         } else keypadInsert(key.insert);
       });
       pad.appendChild(btn);
