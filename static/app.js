@@ -380,9 +380,19 @@ function startTopic(id, push = true) {
 function newProblem() {
   clearTimeout(state.completeTimer);
   const ts = (state.stats.topics && state.stats.topics[state.topic.id]) || { heat: 0.4 };
-  state.seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
   const tierDef = state.topic.tiers[state.tier];
-  state.problem = tierDef.gen(rnd, ts.heat == null ? 0.4 : ts.heat);
+  const heat = ts.heat == null ? 0.4 : ts.heat;
+  // No immediate repeats: if the generator draws the same prompt as the
+  // problem just shown (common in small-pool topics like Pythagorean),
+  // redraw. Bounded retries so a tiny pool can never hang the game.
+  const prevPrompt = state.problem ? state.problem.prompt : null;
+  let p = null;
+  for (let tries = 0; tries < 11; tries++) {
+    state.seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0;
+    p = tierDef.gen(rnd, heat);
+    if (p.prompt !== prevPrompt) break;
+  }
+  state.problem = p;
   state.attempts = 0; state.hintsShown = 0;
   $('#tier-label').innerHTML = `${diffChip(state.tier)} Grade ${state.topic.grades[state.tier]} · ${tierDef.name}`;
   $('#problem-prompt').innerHTML = state.problem.prompt;

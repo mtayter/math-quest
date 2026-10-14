@@ -21,6 +21,8 @@ and progress saved per Google account.
   and ask guiding questions — they never compute the player's specific numbers.
 - **Anti-guessing:** typed answers only; 3 attempts max per problem, then a fresh
   problem of the same type (the answer is never revealed, so guessing can't converge).
+- **No immediate repeats:** a new problem is never identical to the one just
+  shown (the generator redraws on a collision, bounded retries).
 - **Adaptive difficulty:** rolling accuracy promotes/demotes tiers and scales
   number ranges (`heat`) per topic.
 - **Hash routing:** the SPA routes on the URL hash — `#/` home, `#/play/<topic>`,

@@ -897,7 +897,8 @@ const systemsT3 = {
 };
 
 /* ------------------------- PYTHAGOREAN THEOREM (8th) ------------------------- */
-const TRIPLES = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [9, 12, 15], [7, 24, 25]];
+const TRIPLES = [[3, 4, 5], [5, 12, 13], [6, 8, 10], [8, 15, 17], [9, 12, 15], [7, 24, 25],
+  [12, 16, 20], [15, 20, 25], [10, 24, 26], [20, 21, 29], [18, 24, 30]];
 function pickTriple(rnd, maxC) {
   const ok = TRIPLES.filter((t) => !maxC || t[2] <= maxC);
   return pick(rnd, ok);
@@ -906,7 +907,7 @@ const pythagT1 = {
   name: 'Find the hypotenuse',
   gen(rnd, heat) {
     const [a, b, c] = pickTriple(rnd, heat > 0.5 ? 30 : 17);
-    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    const k = (c <= 20 && rnd() < 0.5) ? pick(rnd, [2, 3]) : 1;
     return {
       prompt: `A right triangle has legs ${a * k} and ${b * k}. How long is the hypotenuse?`,
       answer: { kind: 'int', v: c * k },
@@ -921,7 +922,7 @@ const pythagT2 = {
   name: 'Find a missing leg',
   gen(rnd, heat) {
     const [a, b, c] = pickTriple(rnd, heat > 0.5 ? 30 : 17);
-    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    const k = (c <= 20 && rnd() < 0.5) ? pick(rnd, [2, 3]) : 1;
     return {
       prompt: `A right triangle has hypotenuse ${c * k} and one leg ${a * k}. Find the other leg.`,
       answer: { kind: 'int', v: b * k },
@@ -935,7 +936,7 @@ const pythagT3 = {
   name: 'Word problems & distance',
   gen(rnd, heat) {
     const [a, b, c] = pickTriple(rnd, 30);
-    const k = (c <= 13 && rnd() < 0.5) ? 2 : 1;
+    const k = (c <= 20 && rnd() < 0.5) ? pick(rnd, [2, 3]) : 1;
     const style = ri(rnd, 0, 2);
     if (style === 0) {
       return {
@@ -1284,7 +1285,7 @@ const explogsT1 = {
   gen(rnd, heat) {
     const style = ri(rnd, 0, 2);
     if (style === 0) {
-      const m = ri(rnd, 2, 5), n = ri(rnd, 2, 4);
+      const m = ri(rnd, 2, 6), n = ri(rnd, 2, 5);
       return {
         prompt: `Write (x<sup>${m}</sup>)<sup>${n}</sup> as x^n. <span class="muted">Type it like x^5</span>`,
         answer: { kind: 'text', accept: [`x^${m * n}`], normalize: 'power' },
@@ -1294,7 +1295,7 @@ const explogsT1 = {
       };
     }
     if (style === 1) {
-      const b = pick(rnd, [2, 3, 5]), e = ri(rnd, 2, 3);
+      const b = pick(rnd, [2, 3, 4, 5]), e = ri(rnd, 2, 4);
       return {
         prompt: `What is ${b}<sup>−${e}</sup> as a fraction?`,
         answer: { kind: 'fraction', n: 1, d: Math.pow(b, e) },
@@ -1303,7 +1304,7 @@ const explogsT1 = {
         ],
       };
     }
-    const b = ri(rnd, 2, 6), e = pick(rnd, [2, 3]);
+    const b = ri(rnd, 2, 8), e = pick(rnd, [2, 3]);
     return {
       prompt: `Evaluate ${b}<sup>${e}</sup>.`,
       answer: { kind: 'int', v: Math.pow(b, e) },
@@ -1491,7 +1492,7 @@ const trigT1 = {
   name: 'Right-triangle trig',
   gen(rnd, heat) {
     if (rnd() < 0.5) {
-      const [opp, adj, hyp] = pick(rnd, [[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10]]);
+      const [opp, adj, hyp] = pick(rnd, [[3, 4, 5], [5, 12, 13], [8, 15, 17], [6, 8, 10], [7, 24, 25], [9, 12, 15], [12, 16, 20]]);
       const fn = pick(rnd, ['sin', 'cos', 'tan']);
       const [num, den, label] = fn === 'sin' ? [opp, hyp, 'opposite / hypotenuse']
         : fn === 'cos' ? [adj, hyp, 'adjacent / hypotenuse']
@@ -1504,7 +1505,7 @@ const trigT1 = {
         ],
       };
     }
-    const hyp = pick(rnd, [6, 8, 10, 12, 14]);
+    const hyp = pick(rnd, [6, 8, 10, 12, 14, 16, 18, 20]);
     if (rnd() < 0.5) {
       return {
         prompt: `In a 30°-60°-90° triangle, the hypotenuse is ${hyp}. What is the short leg?`,
@@ -1514,7 +1515,7 @@ const trigT1 = {
         ],
       };
     }
-    const short = ri(rnd, 3, 9);
+    const short = ri(rnd, 3, 12);
     return {
       prompt: `In a 30°-60°-90° triangle, the short leg is ${short}. What is the hypotenuse?`,
       answer: { kind: 'int', v: 2 * short },
@@ -1527,23 +1528,54 @@ const trigT1 = {
 const trigT2 = {
   name: 'Unit circle',
   gen(rnd, heat) {
-    if (rnd() < 0.5) {
+    const style = ri(rnd, 0, 2);
+    if (style === 0) {
       const [name, n, d] = pick(rnd, TRIG_RAT);
       return {
         prompt: `What is ${name}?`,
         answer: { kind: 'fraction', n, d },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Special angles have exact values worth memorizing: sin(30°) = 1/2, cos(60°) = 1/2, tan(45°) = 1, sin(90°) = 1, cos(90°) = 0.</p><p><b>Your turn:</b> picture the angle on the unit circle. What’s the value?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Special angles have exact values worth memorizing: sin(30°) = 1/2, cos(60°) = 1/2, tan(45°) = 1, sin(90°) = 1, cos(90°) = 0.</p><p><b>Your turn:</b> picture the angle on the unit circle. What's the value?</p>` },
         ],
       };
     }
-    const [name, n, d] = pick(rnd, TRIG_RAT.filter(([, nn]) => nn !== 0));
-    const fn = name.slice(0, 3), deg = name.slice(4, -2);
+    if (style === 1) {
+      const [name, n, d] = pick(rnd, TRIG_RAT.filter(([, nn]) => nn !== 0));
+      const fn = name.slice(0, 3), deg = name.slice(4, -2);
+      return {
+        prompt: `If ${fn}(θ) = ${d === 1 ? n : n + '/' + d} and θ is acute, what is θ? <span class="muted">(in degrees)</span>`,
+        answer: { kind: 'int', v: parseInt(deg, 10) },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Run the special-angle table <b>backwards</b>: which acute angle gives that value?</p><p>Example: sin(θ) = 1/2 → θ = 30°, because sin(30°) = 1/2.</p><p><b>Your turn:</b> which angle has ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+        ],
+      };
+    }
+    // One trig value given, find another — via the triangle behind it.
+    const [opp, adj, hyp] = pick(rnd, [[3, 4, 5], [5, 12, 13], [8, 15, 17]]);
+    const ask = pick(rnd, ['cos', 'sin', 'tan']);
+    if (ask === 'cos') {
+      return {
+        prompt: `If sin(θ) = ${opp}/${hyp} and θ is acute, what is cos(θ)?`,
+        answer: { kind: 'fraction', n: adj, d: hyp },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: opposite ${opp}, hypotenuse ${hyp}. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: sin(θ) = 3/5 → triangle is 3-4-5, so cos(θ) = 4/5.</p><p><b>Your turn:</b> what's your adjacent side? cos = adjacent/hypotenuse.</p>` },
+        ],
+      };
+    }
+    if (ask === 'sin') {
+      return {
+        prompt: `If cos(θ) = ${adj}/${hyp} and θ is acute, what is sin(θ)?`,
+        answer: { kind: 'fraction', n: opp, d: hyp },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: adjacent ${adj}, hypotenuse ${hyp}. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: cos(θ) = 4/5 → triangle is 3-4-5, so sin(θ) = 3/5.</p><p><b>Your turn:</b> what's your opposite side? sin = opposite/hypotenuse.</p>` },
+        ],
+      };
+    }
     return {
-      prompt: `If ${fn}(θ) = ${d === 1 ? n : n + '/' + d} and θ is acute, what is θ? <span class="muted">(in degrees)</span>`,
-      answer: { kind: 'int', v: parseInt(deg, 10) },
+      prompt: `If sin(θ) = ${opp}/${hyp} and cos(θ) = ${adj}/${hyp}, what is tan(θ)?`,
+      answer: { kind: 'fraction', n: opp, d: adj },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Run the special-angle table <b>backwards</b>: which acute angle gives that value?</p><p>Example: sin(θ) = 1/2 → θ = 30°, because sin(30°) = 1/2.</p><p><b>Your turn:</b> which angle has ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p><b>tan = sin / cos</b> — divide the two fractions.</p><p>Example: sin = 3/5, cos = 4/5 → tan = (3/5) ÷ (4/5) = 3/4.</p><p><b>Your turn:</b> (${opp}/${hyp}) ÷ (${adj}/${hyp}) = ?</p>` },
       ],
     };
   },
@@ -1551,9 +1583,9 @@ const trigT2 = {
 const trigT3 = {
   name: 'Equations & identities',
   gen(rnd, heat) {
-    const style = ri(rnd, 0, 2);
+    const style = ri(rnd, 0, 3);
     if (style === 0) {
-      const [name, n, d] = pick(rnd, TRIG_RAT.filter(([, nn]) => nn !== 0));
+      const [name, n, d] = pick(rnd, TRIG_RAT);
       const fn = name.slice(0, 3), deg = name.slice(4, -2);
       return {
         prompt: `Solve ${fn}(x) = ${d === 1 ? n : n + '/' + d} for 0° ≤ x ≤ 90°. Find x. <span class="muted">(in degrees)</span>`,
@@ -1564,12 +1596,23 @@ const trigT3 = {
       };
     }
     if (style === 1) {
-      const [n, d] = pick(rnd, [[1, 4], [1, 2], [3, 4]]);
+      const [n, d] = pick(rnd, [[1, 4], [1, 2], [3, 4], [1, 3], [2, 3]]);
       return {
         prompt: `If sin²(θ) = ${n}/${d}, what is cos²(θ)?`,
         answer: { kind: 'fraction', n: d - n, d },
         hints: [
           { t: 'Hint 1 — the idea', html: `<p>The Pythagorean identity: <b>sin²(θ) + cos²(θ) = 1</b>.</p><p>Example: sin²(θ) = 3/4 → cos²(θ) = 1 − 3/4 = 1/4.</p><p><b>Your turn:</b> 1 − ${n}/${d} = ?</p>` },
+        ],
+      };
+    }
+    if (style === 3) {
+      // sin² given -> cos: cos² = 1 - sin², and these cases give a clean sqrt.
+      const [n, d, cn, cd] = pick(rnd, [[3, 4, 1, 2], [8, 9, 1, 3], [15, 16, 1, 4], [5, 9, 2, 3]]);
+      return {
+        prompt: `If sin²(θ) = ${n}/${d} and θ is acute, what is cos(θ)?`,
+        answer: { kind: 'fraction', n: cn, d: cd },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>sin² + cos² = 1, so cos² = 1 − ${n}/${d} = ${d - n}/${d}. Then cos is the square root — θ acute means the positive one.</p><p>Example: sin²(θ) = 3/4 → cos² = 1/4 → cos = 1/2.</p><p><b>Your turn:</b> what's your cos²? What squared gives it?</p>` },
         ],
       };
     }
@@ -1638,7 +1681,7 @@ const sequencesT3 = {
   name: 'Recursive & infinite',
   gen(rnd, heat) {
     if (rnd() < 0.5) {
-      const a1 = ri(rnd, 1, 4), m = ri(rnd, 2, 3), add = ri(rnd, 1, 3), n = ri(rnd, 3, 5);
+      const a1 = ri(rnd, 1, 6), m = ri(rnd, 2, 3), add = ri(rnd, 1, 4), n = ri(rnd, 3, 5);
       let cur = a1;
       for (let i = 2; i <= n; i++) cur = m * cur + add;
       return {
@@ -1649,7 +1692,7 @@ const sequencesT3 = {
         ],
       };
     }
-    const a1 = pick(rnd, [2, 4]);
+    const a1 = pick(rnd, [2, 4, 6, 8]);
     const t2 = a1 / 2, t3 = a1 / 4;
     const fmt = (v) => Number.isInteger(v) ? String(v) : `1/${2 / v}`;
     return {
@@ -1720,7 +1763,7 @@ const statsT2 = {
   gen(rnd, heat) {
     const style = ri(rnd, 0, 2);
     if (style === 0) {
-      const red = ri(rnd, 2, 6), blue = ri(rnd, 3, 8);
+      const red = ri(rnd, 2, 8), blue = ri(rnd, 3, 10);
       return {
         prompt: `A bag has ${red} red and ${blue} blue marbles. What is the probability of drawing red?`,
         answer: { kind: 'fraction', n: red, d: red + blue },
@@ -1730,7 +1773,7 @@ const statsT2 = {
       };
     }
     if (style === 1) {
-      const n = ri(rnd, 3, 5);
+      const n = ri(rnd, 3, 7);
       return {
         prompt: `How many ways can ${n} people line up?`,
         answer: { kind: 'int', v: factorial(n) },
@@ -1739,7 +1782,7 @@ const statsT2 = {
         ],
       };
     }
-    const n = ri(rnd, 4, 7), k = ri(rnd, 2, 3);
+    const n = ri(rnd, 4, 8), k = ri(rnd, 2, 4);
     return {
       prompt: `How many ways can you choose ${k} toppings from ${n}? <span class="muted">(order doesn’t matter)</span>`,
       answer: { kind: 'int', v: choose(n, k) },
@@ -1754,7 +1797,7 @@ const statsT3 = {
   gen(rnd, heat) {
     const style = ri(rnd, 0, 2);
     if (style === 0) {
-      const r = ri(rnd, 3, 5), b = ri(rnd, 4, 7);
+      const r = ri(rnd, 2, 7), b = ri(rnd, 3, 9);
       return {
         prompt: `A bag has ${r} red and ${b} blue marbles. You draw one, keep it, then draw another. What is the probability both are red?`,
         answer: { kind: 'fraction', n: r * (r - 1), d: (r + b) * (r + b - 1) },
@@ -1764,7 +1807,7 @@ const statsT3 = {
       };
     }
     if (style === 1) {
-      const pay = pick(rnd, [6, 12]);
+      const pay = pick(rnd, [6, 12, 18, 24, 30]);
       return {
         prompt: `A game pays $${pay} if you roll a 6 on a fair die, and $0 otherwise. What is the expected value? <span class="muted">(in dollars)</span>`,
         answer: { kind: 'int', v: pay / 6 },
@@ -1773,7 +1816,7 @@ const statsT3 = {
         ],
       };
     }
-    const sum = pick(rnd, [6, 7, 8]), ways = { 6: 5, 7: 6, 8: 5 }[sum];
+    const sum = pick(rnd, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]), ways = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 }[sum];
     return {
       prompt: `What is the probability of rolling a sum of ${sum} with two dice?`,
       answer: { kind: 'fraction', n: ways, d: 36 },
@@ -1845,9 +1888,9 @@ const calculusT2 = {
 const calculusT3 = {
   name: 'Integrals',
   gen(rnd, heat) {
-    const style = ri(rnd, 0, 2);
+    const style = ri(rnd, 0, 3);
     if (style === 0) {
-      const a = pick(rnd, [2, 4, 6]), b = ri(rnd, 1, 6);
+      const a = pick(rnd, [2, 4, 6, 8, 10]), b = ri(rnd, 1, 8);
       return {
         prompt: `Find the antiderivative of ${a}x + ${b} (omit +C). <span class="muted">Type it like x^2+3x</span>`,
         answer: { kind: 'text', accept: [fmtPoly([[2, a / 2], [1, b]])], normalize: 'poly' },
@@ -1857,7 +1900,7 @@ const calculusT3 = {
       };
     }
     if (style === 1) {
-      const u = pick(rnd, [2, 4, 6]);
+      const u = pick(rnd, [2, 4, 6, 8]);
       return {
         prompt: `Evaluate the integral from 0 to ${u} of x dx.`,
         answer: { kind: 'int', v: (u * u) / 2 },
@@ -1866,14 +1909,25 @@ const calculusT3 = {
         ],
       };
     }
-    const u = ri(rnd, 2, 5);
-    return {
-      prompt: `What is the area under f(x) = 2x from x = 0 to x = ${u}?`,
-      answer: { kind: 'int', v: u * u },
-      hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Area = the <b>definite integral</b>: antiderivative 2x → x², evaluated 0 to u.</p><p>Example: area under 2x from 0 to 3 = 3² = 9.</p><p><b>Your turn:</b> ${u}² = ?</p>` },
+    if (style === 2) {
+      const u = ri(rnd, 2, 8);
+      return {
+        prompt: `What is the area under f(x) = 2x from x = 0 to x = ${u}?`,
+        answer: { kind: 'int', v: u * u },
+        hints: [
+          { t: 'Hint 1 — the idea', html: `<p>Area = the <b>definite integral</b>: antiderivative 2x → x², evaluated 0 to u.</p><p>Example: area under 2x from 0 to 3 = 3² = 9.</p><p><b>Your turn:</b> ${u}² = ?</p>` },
         ],
       };
+    }
+    // Quadratic antiderivative: coefficients chosen so every term stays whole.
+    const a = pick(rnd, [3, 6, 9]), b = pick(rnd, [2, 4, 6]), c = ri(rnd, 1, 5);
+    return {
+      prompt: `Find the antiderivative of ${a}x<sup>2</sup> + ${b}x + ${c} (omit +C). <span class="muted">Type it like x^3+x^2+x</span>`,
+      answer: { kind: 'text', accept: [fmtPoly([[3, a / 3], [2, b / 2], [1, c]])], normalize: 'poly' },
+      hints: [
+        { t: 'Hint 1 — the idea', html: `<p>Reverse power rule on <b>each term</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(3x² + 2x + 1) dx = x³ + x² + x.</p><p><b>Your turn:</b> ${a}x² becomes what? ${b}x becomes what? ${c} becomes what?</p>` },
+      ],
+    };
   },
 };
 
