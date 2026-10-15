@@ -45,8 +45,8 @@ and progress saved per Google account.
 - **Answer input:** typed answers plus an always-visible on-screen keypad
   (digits, operators, `^` `(` `)` `=` `x`, space, `e`, `≤` `≥` `≠` `π` `√`,
   backspace, clear) — every key inserts a character the checker accepts, at
-  the cursor. iOS gets `inputmode="text"` instead of `"decimal"`, because
-  iOS renders the decimal pad with no minus key.
+  the cursor. `inputmode="text"` everywhere: phone decimal pads (iOS and
+  Android) have no minus key.
 - **Self-update:** the SPA polls `/api/version` (a hash of the static files) and
   shows a refresh banner when a deploy lands; on the home screen it reloads
   automatically after a 10-second countdown.

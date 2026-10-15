@@ -637,19 +637,10 @@ function buildKeypad() {
     }
   }
 }
-// iOS renders inputmode="decimal" as a number pad with NO minus key —
-// the friend's missing minus. Give iOS the full keyboard instead;
-// every other platform keeps the numeric pad.
-function fixIosInputMode() {
-  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (isiOS) $('#answer-input').inputMode = 'text';
-}
 
 /* --------------------------------- wiring --------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   buildKeypad();
-  fixIosInputMode();
   $('#check-btn').onclick = checkAnswer;
   $('#answer-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
   $('#hint-btn').onclick = showHint;

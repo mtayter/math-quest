@@ -66,12 +66,12 @@
   <div class="problem-card" id="problem-card">
     <div id="problem-prompt"></div>
     <div class="answer-row">
-      <input id="answer-input" inputmode="decimal" autocomplete="off" placeholder="your answer" aria-label="Your answer">
+      <input id="answer-input" inputmode="text" autocomplete="off" placeholder="your answer" aria-label="Your answer">
       <button class="btn primary" id="check-btn">Check ✓</button>
     </div>
-    <!-- Always-visible on-screen keypad: some devices (notably iOS with
-         inputmode="decimal") have no minus key, and some keyboards are
-         missing keys entirely. Clicking inserts at the cursor. -->
+    <!-- Always-visible on-screen keypad: phone decimal pads (iOS and
+         Android) have no minus key, and some keyboards are missing keys
+         entirely. Clicking inserts at the cursor. -->
     <div class="keypad" id="keypad" aria-label="On-screen keypad"></div>
     <div id="attempt-dots"></div>
   </div>
