@@ -67,8 +67,8 @@ const fractionsT1 = {
       prompt: `${fracHTML(n, d)} = ${fracHTML('?', d * k)} — what is ?`,
       answer: { kind: 'int', v: n * k },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Equivalent fractions are made by multiplying the top and bottom by the <b>same</b> number.</p><p>Example with <i>different</i> numbers: ${fracHTML(2, 5)} = ${fracHTML('?', 15)}. The bottom went 5 → 15, that’s × 3 — so the top goes 2 × 3 = 6. Answer: 6.</p><p><b>Your turn:</b> your bottom went ${d} → ${d * k}. What was it multiplied by? Do the same to your top.</p>` },
-        { t: 'Hint 2 — check it', html: `<p>Multiply your bottom by your multiplier — do you get ${d * k}? Now multiply your top by the same multiplier. Simplify your result if you can, then type just the number.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Equivalent fractions are made by multiplying the top and bottom by the <b>same</b> number.</p><p>Example with <i>different</i> numbers: ${fracHTML(2, 5)} = ${fracHTML('?', 15)}. The bottom went 5 → 15, that’s × 3 — so the top goes 2 × 3 = 6. Answer: 6.</p><p><b>Your turn:</b> what was your bottom multiplied by? Do the same to your top.</p>` },
+        { t: 'Hint 2 — check it', html: `<p>Multiply your bottom by your multiplier — do you get the denominator in your question? Now multiply your top by the same multiplier. Simplify your result if you can, then type just the number.</p>` },
       ],
     };
   },
@@ -90,7 +90,7 @@ const fractionsT2 = {
       answer: { kind: 'fraction', n: an, d: ad },
       hints: [
         { t: 'Hint 1 — the idea', html: `<p>Same denominator? Easy: <b>add or subtract the tops, keep the bottom the same</b>.</p><p>Example with <i>different</i> numbers: ${fracHTML(2, 9)} + ${fracHTML(5, 9)} — the bottoms match, so just do 2 + 5 = 7 on top: ${fracHTML(7, 9)}.</p><p><b>Your turn:</b> your bottoms already match. What happens on top?</p>` },
-        { t: 'Hint 2 — one step at a time', html: `<p>Cover up the denominators with your thumb. Now it's just ${a} ${op} ${b} = ? Then put the denominator ${d} back under your answer — and simplify if you can.</p>` },
+        { t: 'Hint 2 — one step at a time', html: `<p>Cover up the denominators with your thumb. Now it's just the tops — add or subtract them. Then put the denominator back under your answer — and simplify if you can.</p>` },
       ],
     };
   },
@@ -114,8 +114,8 @@ const fractionsT3 = {
       prompt: `${fracHTML(a, d1)} ${op} ${fracHTML(b, d2)} = ?`,
       answer: { kind: 'fraction', n: an, d: ad },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>You can only add/subtract fractions with the <b>same denominator</b>. So first rewrite both with a common denominator.</p><p>Example with <i>different</i> numbers: ${fracHTML(1, 3)} + ${fracHTML(1, 4)}. A number both 3 and 4 divide into is 12. Rewrite: ${fracHTML(1, 3)} = ${fracHTML(4, 12)} and ${fracHTML(1, 4)} = ${fracHTML(3, 12)}. Now ${fracHTML(4, 12)} + ${fracHTML(3, 12)} = ${fracHTML(7, 12)}.</p><p><b>Your turn:</b> what’s a number both ${d1} and ${d2} divide into evenly?</p>` },
-        { t: 'Hint 2 — rewrite each fraction', html: `<p>Found your common denominator? Good. Now ask: “${d1} × what = my new denominator?” Multiply the top by that same “what” — that rewrites your first fraction. Do the same for the second one.</p><p>Now the bottoms match, so just ${add ? 'add' : 'subtract'} the tops. What do you get?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>You can only add/subtract fractions with the <b>same denominator</b>. So first rewrite both with a common denominator.</p><p>Example with <i>different</i> numbers: ${fracHTML(1, 3)} + ${fracHTML(1, 4)}. A number both 3 and 4 divide into is 12. Rewrite: ${fracHTML(1, 3)} = ${fracHTML(4, 12)} and ${fracHTML(1, 4)} = ${fracHTML(3, 12)}. Now ${fracHTML(4, 12)} + ${fracHTML(3, 12)} = ${fracHTML(7, 12)}.</p><p><b>Your turn:</b> what’s a number both denominators divide into evenly?</p>` },
+        { t: 'Hint 2 — rewrite each fraction', html: `<p>Found your common denominator? Good. Now ask: “What times your first denominator gives the new denominator?” Multiply the top by that same number — that rewrites your first fraction. Do the same for the second one.</p><p>Now the bottoms match, so just ${add ? 'add' : 'subtract'} the tops. What do you get?</p>` },
         { t: 'Hint 3 — finish clean', html: `<p>After ${add ? 'adding' : 'subtracting'} the tops, check: can your answer be simplified? If a number divides both the top and bottom, divide it out.</p>` },
       ],
     };
@@ -135,7 +135,7 @@ const decimalsT1 = {
         prompt: `Round ${val.toFixed(2)} to the nearest tenth.`,
         answer: { kind: 'decimal', v: +rounded.toFixed(1), tol: 0.001 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>To round to the nearest tenth, peek at the <b>hundredths</b> digit: 5 or more rounds the tenths <b>up</b>, 4 or less leaves it alone.</p><p>Example: 3.47 — hundredths digit is 7 (≥ 5), so the 4 rounds up: 3.5.</p><p><b>Your turn:</b> in ${val.toFixed(2)}, what’s the hundredths digit? Does your tenths digit round up or stay?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>To round to the nearest tenth, peek at the <b>hundredths</b> digit: 5 or more rounds the tenths <b>up</b>, 4 or less leaves it alone.</p><p>Example: 3.47 — hundredths digit is 7 (≥ 5), so the 4 rounds up: 3.5.</p><p><b>Your turn:</b> in your number, what’s the hundredths digit? Does your tenths digit round up or stay?</p>` },
           { t: 'Hint 2 — the carry', html: `<p>Careful when the tenths digit is 9 and rounds up: 4.96 → 5.0 (the ones digit carries). Write your rounded answer with one decimal place.</p>` },
         ],
       };
@@ -181,7 +181,7 @@ const decimalsT2 = {
       answer: { kind: 'decimal', v, tol: 0.002 },
       hints: [
         { t: 'Hint 1 — the idea', html: `<p>A fraction bar means <b>divide</b>: top ÷ bottom.</p><p>Example: ${fracHTML(3, 4)} means 3 ÷ 4 = 0.75.</p><p><b>Your turn:</b> divide your top number by your bottom number. What do you get?</p>` },
-        { t: 'Hint 2 — think in money', html: `<p>It can help to think of ${d === 4 ? 'quarters' : d === 2 ? 'halves' : d === 8 ? 'eighths' : 'pieces'}: each ${fracHTML(1, d)} is worth ${(1 / d).toFixed(3)} as a decimal. You have ${n} of them — so multiply.</p>` },
+        { t: 'Hint 2 — think in money', html: `<p>It can help to think in coins: what is one piece worth as a decimal? You have several of them — so multiply.</p>` },
       ],
     };
   },
@@ -197,7 +197,7 @@ const decimalsT3 = {
       answer: { kind: 'decimal', v, tol: 0.006 },
       hints: [
         { t: 'Hint 1 — the idea', html: `<p>When dividing <b>by a whole number</b>, just divide normally and put the decimal point <b>straight up</b> into your answer, right above where it sits in the dividend.</p><p>Example: 4.8 ÷ 4. Divide 48 ÷ 4 = 12, then the point goes straight up: 1.2.</p><p><b>Your turn:</b> ignore your decimal point and divide. Then float the point straight up into the answer. Where does it land?</p>` },
-        { t: 'Hint 2 — check by multiplying', html: `<p>Division undoes multiplication: your answer × ${b} should give back about ${a}. Try it with your answer — close? If not, recheck where the point landed.</p>` },
+        { t: 'Hint 2 — check by multiplying', html: `<p>Division undoes multiplication: your answer times the divisor should give back about the dividend. Try it with your answer — close? If not, recheck where the point landed.</p>` },
       ],
     };
   },
@@ -320,7 +320,7 @@ const ratiosT1 = {
         prompt: `Simplify the ratio ${A} : ${B}`,
         answer: { kind: 'text', accept: [`${a}:${b}`, `${a} : ${b}`, `${a}/${b}`] },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>A ratio simplifies <b>exactly like a fraction</b>: divide both sides by the same number.</p><p>Example: 6 : 8 — both divisible by 2, so 6 : 8 = 3 : 4.</p><p><b>Your turn:</b> what’s the biggest number that divides both ${A} and ${B}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>A ratio simplifies <b>exactly like a fraction</b>: divide both sides by the same number.</p><p>Example: 6 : 8 — both divisible by 2, so 6 : 8 = 3 : 4.</p><p><b>Your turn:</b> what’s the biggest number that divides both sides?</p>` },
           { t: 'Hint 2 — check it', html: `<p>Divide both sides by that number. Can the result be simplified further? If yes, keep going.</p><p>Type your answer like <span class="mono">3:4</span>.</p>` },
         ],
       };
@@ -381,7 +381,7 @@ const ratiosT3 = {
       prompt: `A map uses the scale 1 cm : ${scale} km. Two towns are ${dist} cm apart on the map. How far apart are they really? <span class="muted">(in km)</span>`,
       answer: { kind: 'int', v: real },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>The scale tells you what <b>one</b> cm stands for. Each cm on the map = ${scale} km in real life — so multiply.</p><p>Example: scale 1 cm : 5 km, and 3 cm on the map → 3 × 5 = 15 km.</p><p><b>Your turn:</b> you have ${dist} cm, and each one means ${scale} km. What’s ${dist} × ${scale}?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>The scale tells you what <b>one</b> cm stands for. Each cm on the map stands for a fixed real distance — so multiply.</p><p>Example: scale 1 cm : 5 km, and 3 cm on the map → 3 × 5 = 15 km.</p><p><b>Your turn:</b> how many cm is your distance? Multiply by the scale.</p>` },
       ],
     };
   },
@@ -400,8 +400,8 @@ const percentsT1 = {
         prompt: `What is ${p}% of ${whole}?`,
         answer: Number.isInteger(v) ? { kind: 'int', v } : { kind: 'decimal', v: +v.toFixed(2), tol: 0.01 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Percent means “out of 100.”</b> So ${p}% of something = ${p}/100 of it. Friendly percents are shortcuts: 50% is a half, 25% is a quarter, 10% is a tenth.</p><p>Example: 25% of 40 = a quarter of 40 = 10.</p><p><b>Your turn:</b> what fraction is ${p}%? Now find that fraction <i>of</i> ${whole} — and “of” means multiply.</p>` },
-          { t: 'Hint 2 — the 10% trick', html: `<p>10% of anything = just move the decimal point one place left (10% of 60 = 6). Then build up: 20% is two 10%s, 5% is half of 10%.</p><p>Can you build ${p}% out of 10% chunks?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Percent means “out of 100.”</b> So a percent of something is that percent over 100 of it. Friendly percents are shortcuts: 50% is a half, 25% is a quarter, 10% is a tenth.</p><p>Example: 25% of 40 = a quarter of 40 = 10.</p><p><b>Your turn:</b> what fraction is your percent? Now find that fraction <i>of</i> your whole — and “of” means multiply.</p>` },
+          { t: 'Hint 2 — the 10% trick', html: `<p>10% of anything = just move the decimal point one place left (10% of 60 = 6). Then build up: 20% is two 10%s, 5% is half of 10%.</p><p>Can you build your percent out of 10% chunks?</p>` },
         ],
       };
     }
@@ -438,8 +438,8 @@ const percentsT2 = {
       prompt: `What is ${p}% of ${whole}? <span class="muted">(one decimal place is fine)</span>`,
       answer: { kind: 'decimal', v: val, tol: 0.06 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>“${p}% of ${whole}” means <b>${p}/100 × ${whole}</b>. A clean way: find <b>1%</b> first (divide by 100 — just move the point two places left), then multiply by ${p}.</p><p>Example: 30% of 50. 1% of 50 = 0.5. Then 30 × 0.5 = 15.</p><p><b>Your turn:</b> what’s 1% of ${whole}? Now multiply that by ${p}.</p>` },
-        { t: 'Hint 2 — estimate', html: `<p>Sanity check with 10%: 10% of ${whole} = ${whole / 10}. Your answer for ${p}% should be about ${p / 10} times that. In the right ballpark?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>“Percent of a whole” means <b>percent/100 × whole</b>. A clean way: find <b>1%</b> first (divide by 100 — just move the point two places left), then multiply by the percent.</p><p>Example: 30% of 50. 1% of 50 = 0.5. Then 30 × 0.5 = 15.</p><p><b>Your turn:</b> what’s 1% of your whole? Now multiply that by your percent.</p>` },
+        { t: 'Hint 2 — estimate', html: `<p>Sanity check with 10%: what is 10% of your whole? Your answer should be in the right ballpark.</p>` },
       ],
     };
   },
@@ -457,7 +457,7 @@ const percentsT3 = {
         prompt: `A $${whole} jacket’s price increases by ${p}%. What is the new price? <span class="muted">(in dollars)</span>`,
         answer: { kind: 'decimal', v: +v.toFixed(2), tol: 0.01 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>An increase of ${p}% means the new price is <b>100% + ${p}% = ${100 + p}%</b> of the old price. Convert that to a decimal and multiply.</p><p>Example: $50 increased by 20% → 120% = 1.20 → 1.20 × 50 = $60.</p><p><b>Your turn:</b> ${p}% as a decimal, plus 1 — what multiplier do you get? Multiply your $${whole} by it.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>An increase means the new price is <b>100% + the increase</b>, of the old price. Convert that to a decimal and multiply.</p><p>Example: $50 increased by 20% → 120% = 1.20 → 1.20 × 50 = $60.</p><p><b>Your turn:</b> your percent as a decimal, plus 1 — what multiplier do you get? Multiply your old price by it.</p>` },
         ],
       };
     }
@@ -469,7 +469,7 @@ const percentsT3 = {
         prompt: `A $${whole} game is on sale for ${p}% off. What is the sale price? <span class="muted">(in dollars)</span>`,
         answer: { kind: 'decimal', v: +v.toFixed(2), tol: 0.01 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>${p}% off means you pay <b>100% − ${p}% = ${100 - p}%</b> of the price. Turn that into a decimal and multiply.</p><p>Example: $80 with 25% off → you pay 75% = 0.75 → 0.75 × 80 = $60.</p><p><b>Your turn:</b> what percent do you actually pay? As a decimal, times $${whole}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Percent off means you pay <b>100% minus the discount</b>, of the price. Turn that into a decimal and multiply.</p><p>Example: $80 with 25% off → you pay 75% = 0.75 → 0.75 × 80 = $60.</p><p><b>Your turn:</b> what percent do you actually pay? As a decimal, times your old price?</p>` },
         ],
       };
     }
@@ -480,7 +480,7 @@ const percentsT3 = {
       prompt: `${part} is ${p}% of what number?`,
       answer: { kind: 'int', v: whole },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>“${part} is ${p}% of ?” — work backwards: if ${p}% equals ${part}, then <b>1% equals ${part} ÷ ${p}</b>, and 100% is 100 times that.</p><p>Example: 12 is 30% of what? 1% = 12 ÷ 30 = 0.4. Whole = 0.4 × 100 = 40.</p><p><b>Your turn:</b> divide ${part} by ${p} to get 1%. Then × 100. What’s the whole?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>“Part is percent of ?” — work backwards: if the percent equals the part, then <b>1% equals the part divided by the percent</b>, and 100% is 100 times that.</p><p>Example: 12 is 30% of what? 1% = 12 ÷ 30 = 0.4. Whole = 0.4 × 100 = 40.</p><p><b>Your turn:</b> divide your part by your percent to get 1%. Then × 100. What’s the whole?</p>` },
       ],
     };
   },
@@ -497,7 +497,7 @@ const prealgT1 = {
         prompt: `Evaluate <b>${a}x + ${b}</b> when x = ${x}.`,
         answer: { kind: 'int', v },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace every x with its value, then compute normally. Multiplication first!</p><p>Example: evaluate 4x − 3 when x = 5. Substitute: 4·5 − 3 = 20 − 3 = 17.</p><p><b>Your turn:</b> rewrite your expression with ${x} in place of x. What do you get?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace every x with its value, then compute normally. Multiplication first!</p><p>Example: evaluate 4x − 3 when x = 5. Substitute: 4·5 − 3 = 20 − 3 = 17.</p><p><b>Your turn:</b> rewrite your expression with the given x-value in place of x. What do you get?</p>` },
         ],
       };
     }
@@ -509,7 +509,7 @@ const prealgT1 = {
       prompt: add ? `x + ${b} = ${c} — find x` : `x − ${b} = ${c} — find x`,
       answer: { kind: 'int', v: x },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>To “undo” an equation, do the <b>opposite operation to both sides</b>. The goal: get x alone.</p><p>Example: x + 7 = 12. Undo “+ 7” with “− 7” on both sides: x = 12 − 7 = 5.</p><p><b>Your turn:</b> what’s the opposite of “${add ? `+ ${b}` : `− ${b}`}”? Do it to both sides — what is x?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>To “undo” an equation, do the <b>opposite operation to both sides</b>. The goal: get x alone.</p><p>Example: x + 7 = 12. Undo “+ 7” with “− 7” on both sides: x = 12 − 7 = 5.</p><p><b>Your turn:</b> what’s the opposite of the operation on your x side? Do it to both sides — what is x?</p>` },
         { t: 'Hint 2 — check it', html: `<p>Plug your x back into the original equation. Does the left side really equal the right side? If not, recheck your undo step.</p>` },
       ],
     };
@@ -541,8 +541,8 @@ const prealgT2 = {
 function prealgHints(a, b, op, c) {
   return [
     { t: 'Hint 1 — the idea', html: `<p>Undo in <b>reverse order of operations</b>: addition/subtraction first, then multiplication/division.</p><p>Example with <i>different</i> numbers: 3x + 4 = 19. First undo “+ 4”: 3x = 15. Then undo “× 3”: x = 5.</p><p><b>Your turn:</b> in your equation, what’s the ${op === '+' ? 'added' : 'subtracted'} number to undo first?</p>` },
-    { t: 'Hint 2 — step one', html: `<p>Do the opposite of “${op} ${b}” to <b>both sides</b>. Now your equation should look like ${a}x = (some number). What’s that number?</p>` },
-    { t: 'Hint 3 — step two', html: `<p>Now undo “× ${a}” by dividing both sides by ${a}. Then <b>check</b>: plug your x into the original equation — does ${a}·(your x) ${op} ${b} really equal ${c}?</p>` },
+    { t: 'Hint 2 — step one', html: `<p>Do the opposite of the addition or subtraction to <b>both sides</b>. Now you should have a one-step equation. What’s the number on the other side?</p>` },
+    { t: 'Hint 3 — step two', html: `<p>Now undo the multiplication by dividing both sides by the coefficient of x. Then <b>check</b>: plug your x into the original equation — do both sides really match?</p>` },
   ];
 }
 
@@ -557,8 +557,8 @@ const prealgT3 = {
         prompt: `${a}(x + ${b}) = ${rhs} — find x`,
         answer: { kind: 'int', v: x },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>When x is inside parentheses, you have two good moves: <b>divide first</b> (undo the outside multiplication), or <b>distribute</b> (multiply through).</p><p>Example: 2(x + 3) = 16. Divide-first way: divide both sides by 2 → x + 3 = 8 → x = 5.</p><p><b>Your turn:</b> try dividing both sides of your equation by ${a} first. What simpler equation do you get?</p>` },
-          { t: 'Hint 2 — finish it', html: `<p>You should now have x + ${b} = ${c}. That’s a one-step equation — undo the “+ ${b}”.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>When x is inside parentheses, you have two good moves: <b>divide first</b> (undo the outside multiplication), or <b>distribute</b> (multiply through).</p><p>Example: 2(x + 3) = 16. Divide-first way: divide both sides by 2 → x + 3 = 8 → x = 5.</p><p><b>Your turn:</b> try dividing both sides of your equation by the number outside the parentheses first. What simpler equation do you get?</p>` },
+          { t: 'Hint 2 — finish it', html: `<p>After dividing first, you should have a one-step equation — undo the addition.</p>` },
         ],
       };
     }
@@ -573,8 +573,8 @@ const prealgT3 = {
         prompt: `x ÷ ${dd} + ${b} = ${cc} — find x`,
         answer: { kind: 'int', v: x },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Undo in reverse order: the “+ ${b}” happened last, so undo it <b>first</b>; the “÷ ${dd}” happened first, so undo it <b>last</b> (by multiplying).</p><p>Example: x ÷ 4 + 2 = 6. Undo “+ 2”: x ÷ 4 = 4. Undo “÷ 4”: x = 16.</p><p><b>Your turn:</b> undo your “+ ${b}” first. What does x ÷ ${dd} equal?</p>` },
-          { t: 'Hint 2 — finish it', html: `<p>Now undo “÷ ${dd}” by multiplying both sides by ${dd}. Check by plugging back in!</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Undo in reverse order: the addition happened last, so undo it <b>first</b>; the division happened first, so undo it <b>last</b> (by multiplying).</p><p>Example: x ÷ 4 + 2 = 6. Undo “+ 2”: x ÷ 4 = 4. Undo “÷ 4”: x = 16.</p><p><b>Your turn:</b> undo your addition first. What does x divided by your divisor equal?</p>` },
+          { t: 'Hint 2 — finish it', html: `<p>Now undo the division by multiplying both sides by your divisor. Check by plugging back in!</p>` },
         ],
       };
     }
@@ -584,7 +584,7 @@ const prealgT3 = {
       prompt: `${a}x + ${b}x = ${rhs} — find x`,
       answer: { kind: 'int', v: x },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p><b>Combine like terms</b> first: ${a}x and ${b}x are the same kind of thing, so add their coefficients.</p><p>Example: 4x + 3x = 35 → 7x = 35 → x = 5.</p><p><b>Your turn:</b> ${a} + ${b} = ? Rewrite your equation as (that)x = ${rhs}, then solve.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p><b>Combine like terms</b> first: the two x-terms are the same kind of thing, so add their coefficients.</p><p>Example: 4x + 3x = 35 → 7x = 35 → x = 5.</p><p><b>Your turn:</b> Add the coefficients. Rewrite your equation as (that)x = the right side, then divide.</p>` },
       ],
     };
   },
@@ -603,8 +603,8 @@ const factorsT1 = {
         prompt: `How many factors does ${n} have? <span class="muted">(count them: 1 and ${n} count too)</span>`,
         answer: { kind: 'int', v: divs.length },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Factors come in <b>pairs</b> that multiply to your number. Walk i = 1, 2, 3… upward: whenever i divides ${n} evenly, you’ve found <i>two</i> factors (i and ${n}÷i).</p><p>Example: factors of 12. 1×12, 2×6, 3×4 — that’s 6 factors: 1, 2, 3, 4, 6, 12.</p><p><b>Your turn:</b> list the pairs for ${n}. How many numbers are in your list?</p>` },
-          { t: 'Hint 2 — don’t double-count', html: `<p>You can stop when the pairs start repeating (past √${n} ≈ ${Math.floor(Math.sqrt(n))}). And careful: if ${n} is a perfect square, the middle pair is a double like 6×6 — count 6 only once.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Factors come in <b>pairs</b> that multiply to your number. Walk i = 1, 2, 3… upward: whenever i divides your number evenly, you’ve found <i>two</i> factors (i and your number ÷ i).</p><p>Example: factors of 12. 1×12, 2×6, 3×4 — that’s 6 factors: 1, 2, 3, 4, 6, 12.</p><p><b>Your turn:</b> list the pairs for your number. How many numbers are in your list?</p>` },
+          { t: 'Hint 2 — don’t double-count', html: `<p>You can stop when the pairs start repeating (past the square root). And careful: if your number is a perfect square, the middle pair is a double like 6×6 — count it only once.</p>` },
         ],
       };
     }
@@ -617,8 +617,8 @@ const factorsT1 = {
         prompt: `What is the remainder when ${n} is divided by ${d}?`,
         answer: { kind: 'int', v: r },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>The remainder is what’s <b>left over</b> after dividing out as many whole ${d}s as fit.</p><p>Example: 17 ÷ 5. Five goes into 17 three times (15), leaving 2. Remainder: 2.</p><p><b>Your turn:</b> how many whole ${d}s fit into ${n}? Multiply back and subtract — what’s left?</p>` },
-          { t: 'Hint 2 — divisibility shortcut', html: `<p>Shortcuts: divisible by 3 if digits sum to a multiple of 3; by 9 if digits sum to a multiple of 9; by 5 if it ends in 0/5; by 4 if the last two digits form a multiple of 4. Does ${n} pass the test for ${d}? If not, the remainder is small — try the nearest multiple of ${d} below ${n}.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>The remainder is what’s <b>left over</b> after dividing out as many whole divisors as fit.</p><p>Example: 17 ÷ 5. Five goes into 17 three times (15), leaving 2. Remainder: 2.</p><p><b>Your turn:</b> how many whole divisors fit into your number? Multiply back and subtract — what’s left?</p>` },
+          { t: 'Hint 2 — divisibility shortcut', html: `<p>Shortcuts: divisible by 3 if digits sum to a multiple of 3; by 9 if digits sum to a multiple of 9; by 5 if it ends in 0/5; by 4 if the last two digits form a multiple of 4. Does your number pass the test for your divisor? If not, the remainder is small — try the nearest multiple of your divisor below your number.</p>` },
         ],
       };
     }
@@ -630,8 +630,8 @@ const factorsT1 = {
       prompt: `List <b>all</b> the factors of ${n}, smallest to largest, separated by commas.`,
       answer: { kind: 'text', accept: [divs.join(',')], normalize: 'numlist' },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Factors come in <b>pairs</b> that multiply to your number. Walk 1, 2, 3… upward: whenever one divides ${n} evenly, you’ve found <i>two</i> factors.</p><p>Example: factors of 12 → 1×12, 2×6, 3×4, so: 1,2,3,4,6,12.</p><p><b>Your turn:</b> find the pairs for ${n}, then list every factor smallest to largest, like <span class="mono">1,2,3</span>.</p>` },
-        { t: 'Hint 2 — don’t stop early', html: `<p>You can stop testing once the pairs start repeating (past √${n} ≈ ${Math.floor(Math.sqrt(n))}). Count your list — did you get them all, including 1 and ${n} itself?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Factors come in <b>pairs</b> that multiply to your number. Walk 1, 2, 3… upward: whenever one divides your number evenly, you’ve found <i>two</i> factors.</p><p>Example: factors of 12 → 1×12, 2×6, 3×4, so: 1,2,3,4,6,12.</p><p><b>Your turn:</b> find the pairs for your number, then list every factor smallest to largest, like <span class="mono">1,2,3</span>.</p>` },
+        { t: 'Hint 2 — don’t stop early', html: `<p>You can stop testing once the pairs start repeating (past the square root). Count your list — did you get them all, including 1 and the number itself?</p>` },
       ],
     };
   },
@@ -648,8 +648,8 @@ const factorsT2 = {
         prompt: `What is the GCF of ${a} and ${b}? <span class="muted">(greatest common factor)</span>`,
         answer: { kind: 'int', v: gcd(a, b) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>List the <b>factors</b> of each number, then take the <b>biggest one they share</b>.</p><p>Example: GCF of 12 and 18. Factors of 12: 1,2,3,4,6,12. Factors of 18: 1,2,3,6,9,18. Biggest shared: 6.</p><p><b>Your turn:</b> list the factors of ${a} and of ${b}. What’s the biggest number on both lists?</p>` },
-          { t: 'Hint 2 — shortcut', html: `<p>Shortcut: any common factor must divide their <b>difference</b> too. ${a} − ${b} = ${Math.abs(a - b)}. The GCF is a factor of ${Math.abs(a - b)} — test its factors from biggest down.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>List the <b>factors</b> of each number, then take the <b>biggest one they share</b>.</p><p>Example: GCF of 12 and 18. Factors of 12: 1,2,3,4,6,12. Factors of 18: 1,2,3,6,9,18. Biggest shared: 6.</p><p><b>Your turn:</b> list the factors of each of your numbers. What’s the biggest number on both lists?</p>` },
+          { t: 'Hint 2 — shortcut', html: `<p>Shortcut: any common factor must divide their <b>difference</b> too. What is the difference? The GCF is a factor of it — test its factors from biggest down.</p>` },
         ],
       };
     }
@@ -660,7 +660,7 @@ const factorsT2 = {
         prompt: `What is the LCM of ${a} and ${b}? <span class="muted">(least common multiple)</span>`,
         answer: { kind: 'int', v: lcm(a, b) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>List <b>multiples</b> of each number until you find one on both lists — the first one is the least.</p><p>Example: LCM of 4 and 6. Multiples of 4: 4, 8, <b>12</b>… Multiples of 6: 6, <b>12</b>… Answer: 12.</p><p><b>Your turn:</b> write multiples of ${a}, then multiples of ${b}. What’s the first match?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>List <b>multiples</b> of each number until you find one on both lists — the first one is the least.</p><p>Example: LCM of 4 and 6. Multiples of 4: 4, 8, <b>12</b>… Multiples of 6: 6, <b>12</b>… Answer: 12.</p><p><b>Your turn:</b> write multiples of each of your numbers. What’s the first match?</p>` },
           { t: 'Hint 2 — shortcut', html: `<p>Shortcut: LCM(a, b) = a × b ÷ GCF(a, b). If you can spot their GCF, one division gets you the LCM.</p>` },
         ],
       };
@@ -679,8 +679,8 @@ const factorsT2 = {
       prompt: `Write the prime factorization of ${n}. <span class="muted">(like 2x2x3)</span>`,
       answer: { kind: 'text', accept: [canonical], normalize: 'factorlist' },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Build a <b>factor tree</b>: split ${n} into any two factors, then keep splitting until every branch ends in a prime.</p><p>Example: 24 → 4 × 6 → (2×2) × (2×3) → 2×2×2×3. Type it as <span class="mono">2x2x2x3</span>.</p><p><b>Your turn:</b> split ${n} into two factors. Are both prime? If not, split the composite one again.</p>` },
-        { t: 'Hint 2 — check it', html: `<p>Multiply your primes back together — do you get ${n}? Every factor in your answer must itself be prime (2, 3, 5, 7, 11…). Type them with <span class="mono">x</span> between, smallest first.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Build a <b>factor tree</b>: split your number into any two factors, then keep splitting until every branch ends in a prime.</p><p>Example: 24 → 4 × 6 → (2×2) × (2×3) → 2×2×2×3. Type it as <span class="mono">2x2x2x3</span>.</p><p><b>Your turn:</b> split your number into two factors. Are both prime? If not, split the composite one again.</p>` },
+        { t: 'Hint 2 — check it', html: `<p>Multiply your primes back together — do you get your number back? Every factor in your answer must itself be prime (2, 3, 5, 7, 11…). Type them with <span class="mono">x</span> between, smallest first.</p>` },
       ],
     };
   },
@@ -696,7 +696,7 @@ const factorsT3 = {
         prompt: `What is ${b}<sup>${e}</sup>?`,
         answer: { kind: 'int', v: Math.pow(b, e) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>An exponent counts <b>repeated multiplication</b>: 3<sup>4</sup> = 3 × 3 × 3 × 3 = 81.</p><p><b>Your turn:</b> write ${b}<sup>${e}</sup> out as ${e} copies of ${b} multiplied together. Go left to right — what do you get?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>An exponent counts <b>repeated multiplication</b>: 3<sup>4</sup> = 3 × 3 × 3 × 3 = 81.</p><p><b>Your turn:</b> write the power out as repeated multiplication of the base. Go left to right — what do you get?</p>` },
         ],
       };
     }
@@ -706,7 +706,7 @@ const factorsT3 = {
         prompt: `What is 10<sup>${e}</sup>?`,
         answer: { kind: 'int', v: Math.pow(10, e) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Powers of 10 are easy: 10<sup>n</sup> is a <b>1 followed by n zeros</b>. 10<sup>3</sup> = 1000.</p><p><b>Your turn:</b> write a 1, then count out ${e} zeros after it.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Powers of 10 are easy: 10<sup>n</sup> is a <b>1 followed by n zeros</b>. 10<sup>3</sup> = 1000.</p><p><b>Your turn:</b> write a 1, then count out that many zeros after it.</p>` },
         ],
       };
     }
@@ -718,7 +718,7 @@ const factorsT3 = {
       prompt: `${a}<sup>${ea}</sup> and ${b}<sup>${eb}</sup> — type the <b>value</b> of the larger one.`,
       answer: { kind: 'int', v: Math.max(va, vb) },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Don’t be fooled by the bigger base! <b>Evaluate each power</b> (write out the multiplication), then compare the results.</p><p>Example: 2<sup>5</sup> vs 5<sup>2</sup>. 2<sup>5</sup> = 32, but 5<sup>2</sup> = 25 — the “smaller” base wins, so you’d type 32.</p><p><b>Your turn:</b> compute ${a}<sup>${ea}</sup> and ${b}<sup>${eb}</sup> separately. Which value is larger? Type that number.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Don’t be fooled by the bigger base! <b>Evaluate each power</b> (write out the multiplication), then compare the results.</p><p>Example: 2<sup>5</sup> vs 5<sup>2</sup>. 2<sup>5</sup> = 32, but 5<sup>2</sup> = 25 — the “smaller” base wins, so you’d type 32.</p><p><b>Your turn:</b> compute each power separately. Which value is larger? Type that number.</p>` },
       ],
     };
   },
@@ -800,7 +800,7 @@ const linearT3 = {
         prompt: `${a}(x + ${b}) = ${c}x + ${d} — find x`,
         answer: { kind: 'int', v: x },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Distribute first</b>, then solve like a both-sides equation.</p><p>Example: 2(x + 3) = x + 10. Distribute: 2x + 6 = x + 10. Subtract x: x + 6 = 10. Subtract 6: x = 4.</p><p><b>Your turn:</b> distribute the ${a} in your equation. What does it become?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Distribute first</b>, then solve like a both-sides equation.</p><p>Example: 2(x + 3) = x + 10. Distribute: 2x + 6 = x + 10. Subtract x: x + 6 = 10. Subtract 6: x = 4.</p><p><b>Your turn:</b> distribute the number outside the parentheses in your equation. What does it become?</p>` },
         ],
       };
     }
@@ -850,7 +850,7 @@ const systemsT1 = {
       prompt: `If y = ${linStr(m, b)} and x = ${x}, what is y?`,
       answer: { kind: 'int', v: m * x + b },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace x with its value, then compute.</p><p>Example: y = 3x − 2 with x = 4 → y = 3·4 − 2 = 10.</p><p><b>Your turn:</b> rewrite your equation with ${x} in place of x. What’s y?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace x with its value, then compute.</p><p>Example: y = 3x − 2 with x = 4 → y = 3·4 − 2 = 10.</p><p><b>Your turn:</b> rewrite your equation with the given x-value in place of x. What’s y?</p>` },
       ],
     };
   },
@@ -960,7 +960,7 @@ const pythagT3 = {
       prompt: `How far apart are (0, 0) and (${a * k}, ${b * k})?`,
       answer: { kind: 'int', v: c * k },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Distance on a grid is a hypotenuse: make a right triangle with legs equal to the x-difference and the y-difference.</p><p><b>Your turn:</b> your legs are ${a * k} and ${b * k}. Square, add, square-root.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Distance on a grid is a hypotenuse: make a right triangle with legs equal to the x-difference and the y-difference.</p><p><b>Your turn:</b> your legs are the x-difference and the y-difference. Square, add, square-root.</p>` },
       ],
     };
   },
@@ -988,7 +988,7 @@ const scinotT1 = {
       prompt: `Write  ${d} × 10<sup>${k}</sup> as a regular number.`,
       answer: { kind: 'int', v: N },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>10<sup>k</sup> means “move the point k places right,” adding zeros as needed.</p><p>Example: 3.2 × 10³ → move the point 3 right: 3,200.</p><p><b>Your turn:</b> move your point ${k} places right. What number do you get?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>10<sup>k</sup> means “move the point k places right,” adding zeros as needed.</p><p>Example: 3.2 × 10³ → move the point 3 right: 3,200.</p><p><b>Your turn:</b> move your point that many places right. What number do you get?</p>` },
       ],
     };
   },
@@ -1015,7 +1015,7 @@ const scinotT2 = {
         prompt: `10<sup>${e1}</sup> ÷ 10<sup>${e2}</sup> = ? <span class="muted">Write in scientific notation</span>`,
         answer: { kind: 'text', accept: [`1e${e1 - e2}`], normalize: 'scinot' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Dividing powers of 10: <b>subtract the exponents</b>.</p><p>Example: 10⁶ ÷ 10² = 10⁴. Type it as <span class="mono">1e4</span>.</p><p><b>Your turn:</b> ${e1} − ${e2} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Dividing powers of 10: <b>subtract the exponents</b>.</p><p>Example: 10⁶ ÷ 10² = 10⁴. Type it as <span class="mono">1e4</span>.</p><p><b>Your turn:</b> Subtract the exponents.</p>` },
         ],
       };
     }
@@ -1039,7 +1039,7 @@ const scinotT3 = {
         prompt: `√${n} = ?`,
         answer: { kind: 'int', v: r },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>√n asks: “what number, times itself, equals n?”</p><p>Example: √49 = 7, because 7 × 7 = 49.</p><p><b>Your turn:</b> which whole number squared gives ${n}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>√n asks: “what number, times itself, equals n?”</p><p>Example: √49 = 7, because 7 × 7 = 49.</p><p><b>Your turn:</b> which whole number squared gives your number?</p>` },
         ],
       };
     }
@@ -1049,7 +1049,7 @@ const scinotT3 = {
         prompt: `√${n} is between which two whole numbers? <span class="muted">Type them, smallest first</span>`,
         answer: { kind: 'text', accept: [`${r},${r + 1}`], normalize: 'numlist' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Sandwich it between <b>perfect squares</b> you know.</p><p>Example: √50. 7² = 49 and 8² = 64, and 50 sits between 49 and 64 — so √50 is between 7 and 8.</p><p><b>Your turn:</b> which two perfect squares does ${n} sit between? Their roots are your answer.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Sandwich it between <b>perfect squares</b> you know.</p><p>Example: √50. 7² = 49 and 8² = 64, and 50 sits between 49 and 64 — so √50 is between 7 and 8.</p><p><b>Your turn:</b> which two perfect squares does your number sit between? Their roots are your answer.</p>` },
         ],
       };
     }
@@ -1058,7 +1058,7 @@ const scinotT3 = {
       prompt: `∛${n} = ? <span class="muted">(cube root)</span>`,
       answer: { kind: 'int', v: r },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Cube root asks: “what number, times itself <b>three</b> times, equals n?”</p><p>Example: ∛27 = 3, because 3 × 3 × 3 = 27.</p><p><b>Your turn:</b> which whole number, cubed, gives ${n}?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Cube root asks: “what number, times itself <b>three</b> times, equals n?”</p><p>Example: ∛27 = 3, because 3 × 3 × 3 = 27.</p><p><b>Your turn:</b> which whole number, cubed, gives your number?</p>` },
       ],
     };
   },
@@ -1109,7 +1109,7 @@ const quadraticsT1 = {
       prompt: `Evaluate ${quadDisplay(a, b, c)} when x = ${x0}.`,
       answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace every x with ${x0}, then compute — exponents first.</p><p>Example: x² + 3x + 2 at x = 4 → 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your expression with ${x0} in place of x. What do you get?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p><b>Substitute</b>: replace every x with the given value, then compute — exponents first.</p><p>Example: x² + 3x + 2 at x = 4 → 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your expression with the given value in place of x. What do you get?</p>` },
       ],
     };
   },
@@ -1127,7 +1127,7 @@ const quadraticsT2 = {
         prompt: `Factor ${quadDisplay(1, -b, c)}. <span class="muted">Type it like (x+2)(x+3)</span>`,
         answer: { kind: 'text', accept: [f(r1) + f(r2)], normalize: 'factored' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>To factor x² + bx + c, find two numbers that <b>multiply to c</b> and <b>add to b</b>.</p><p>Example: x² + 7x + 12. Numbers that multiply to 12 and add to 7: 3 and 4. So (x + 3)(x + 4).</p><p><b>Your turn:</b> which two numbers multiply to ${c} and add to ${-b}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>To factor x² + bx + c, find two numbers that <b>multiply to c</b> and <b>add to b</b>.</p><p>Example: x² + 7x + 12. Numbers that multiply to 12 and add to 7: 3 and 4. So (x + 3)(x + 4).</p><p><b>Your turn:</b> which two numbers multiply to the constant and add to the middle coefficient?</p>` },
           { t: 'Hint 2 — check it', html: `<p>Multiply your two factors back out (FOIL). Do you get the original quadratic?</p>` },
         ],
       };
@@ -1182,7 +1182,7 @@ const geometryT1 = {
         prompt: `Two angles are complementary. One is ${a}°. What is the other? <span class="muted">(in degrees)</span>`,
         answer: { kind: 'int', v: 90 - a },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Complementary</b> angles add to 90°.</p><p>Example: complementary to 35° is 90 − 35 = 55°.</p><p><b>Your turn:</b> 90 − ${a} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Complementary</b> angles add to 90°.</p><p>Example: complementary to 35° is 90 − 35 = 55°.</p><p><b>Your turn:</b> what is 90 minus your angle?</p>` },
         ],
       };
     }
@@ -1192,7 +1192,7 @@ const geometryT1 = {
         prompt: `Two angles are supplementary. One is ${a}°. What is the other? <span class="muted">(in degrees)</span>`,
         answer: { kind: 'int', v: 180 - a },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Supplementary</b> angles add to 180° — they make a straight line.</p><p>Example: supplementary to 110° is 180 − 110 = 70°.</p><p><b>Your turn:</b> 180 − ${a} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Supplementary</b> angles add to 180° — they make a straight line.</p><p>Example: supplementary to 110° is 180 − 110 = 70°.</p><p><b>Your turn:</b> what is 180 minus your angle?</p>` },
         ],
       };
     }
@@ -1201,7 +1201,7 @@ const geometryT1 = {
       prompt: `A triangle has angles ${a}° and ${b}°. What is the third angle? <span class="muted">(in degrees)</span>`,
       answer: { kind: 'int', v: 180 - a - b },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>A triangle’s angles always add to <b>180°</b>.</p><p>Example: angles 50° and 70° → third = 180 − 50 − 70 = 60°.</p><p><b>Your turn:</b> 180 − ${a} − ${b} = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>A triangle’s angles always add to <b>180°</b>.</p><p>Example: angles 50° and 70° → third = 180 − 50 − 70 = 60°.</p><p><b>Your turn:</b> subtract both of your angles from 180.</p>` },
       ],
     };
   },
@@ -1236,7 +1236,7 @@ const geometryT2 = {
       prompt: `An isosceles triangle has a vertex angle of ${v}°. What is each base angle? <span class="muted">(in degrees)</span>`,
       answer: { kind: 'int', v: (180 - v) / 2 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>An isosceles triangle’s two <b>base angles are equal</b>, and all three add to 180°.</p><p>Example: vertex 40° → the two base angles share 140°, so each is 70°.</p><p><b>Your turn:</b> 180 − ${v} = ? Split it in half.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>An isosceles triangle’s two <b>base angles are equal</b>, and all three add to 180°.</p><p>Example: vertex 40° → the two base angles share 140°, so each is 70°.</p><p><b>Your turn:</b> subtract your vertex angle from 180. Split it in half.</p>` },
       ],
     };
   },
@@ -1261,7 +1261,7 @@ const geometryT3 = {
         prompt: `A circle has radius ${r}. What is its circumference? <span class="muted">Use π ≈ 3.14</span>`,
         answer: { kind: 'decimal', v: 2 * 3.14 * r },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Circumference = <b>2 π r</b>.</p><p>Example: r = 7 → 2 × 3.14 × 7 = 43.96.</p><p><b>Your turn:</b> 2 × 3.14 × ${r} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Circumference = <b>2 π r</b>.</p><p>Example: r = 7 → 2 × 3.14 × 7 = 43.96.</p><p><b>Your turn:</b> apply the circumference formula to your radius.</p>` },
         ],
       };
     }
@@ -1290,7 +1290,7 @@ const explogsT1 = {
         prompt: `Write (x<sup>${m}</sup>)<sup>${n}</sup> as x^n. <span class="muted">Type it like x^5</span>`,
         answer: { kind: 'text', accept: [`x^${m * n}`], normalize: 'power' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Power of a power: <b>multiply the exponents</b>.</p><p>Example: (x³)⁴ = x¹², because 3 × 4 = 12.</p><p><b>Your turn:</b> ${m} × ${n} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Power of a power: <b>multiply the exponents</b>.</p><p>Example: (x³)⁴ = x¹², because 3 × 4 = 12.</p><p><b>Your turn:</b> Multiply the exponents.</p>` },
         ],
       };
     }
@@ -1300,7 +1300,7 @@ const explogsT1 = {
         prompt: `What is ${b}<sup>−${e}</sup> as a fraction?`,
         answer: { kind: 'fraction', n: 1, d: Math.pow(b, e) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>A negative exponent means <b>flip it</b>: b⁻ᵉ = 1 / bᵉ.</p><p>Example: 2⁻³ = 1 / 2³ = 1/8.</p><p><b>Your turn:</b> 1 over ${b}<sup>${e}</sup> = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>A negative exponent means <b>flip it</b>: b⁻ᵉ = 1 / bᵉ.</p><p>Example: 2⁻³ = 1 / 2³ = 1/8.</p><p><b>Your turn:</b> 1 over your base to that power = ?</p>` },
         ],
       };
     }
@@ -1324,7 +1324,7 @@ const explogsT2 = {
         prompt: `Solve ${b}^x = ${Math.pow(b, e)}. Find x.`,
         answer: { kind: 'int', v: e },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Write the right side as a power of the same base, then the exponents must match.</p><p>Example: 2^x = 64 = 2⁶, so x = 6.</p><p><b>Your turn:</b> ${Math.pow(b, e)} is ${b} to what power?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Write the right side as a power of the same base, then the exponents must match.</p><p>Example: 2^x = 64 = 2⁶, so x = 6.</p><p><b>Your turn:</b> the right side is a power of your base. To what power?</p>` },
         ],
       };
     }
@@ -1334,7 +1334,7 @@ const explogsT2 = {
         prompt: `What is log<sub>${b}</sub>(${Math.pow(b, e)})?`,
         answer: { kind: 'int', v: e },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>log<sub>b</sub>(y) asks: “${b} to what power gives y?”</p><p>Example: log₂(32) = 5, because 2⁵ = 32.</p><p><b>Your turn:</b> ${b} to what power gives ${Math.pow(b, e)}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>log asks: “base to what power gives y?”</p><p>Example: log₂(32) = 5, because 2⁵ = 32.</p><p><b>Your turn:</b> your base to what power gives your number?</p>` },
         ],
       };
     }
@@ -1358,7 +1358,7 @@ const explogsT3 = {
         prompt: `log(${a}) + log(${b}) = log( ? ). What is ?`,
         answer: { kind: 'int', v: a * b },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p><b>Product rule:</b> log(a) + log(b) = log(a × b) — adding logs multiplies the insides.</p><p>Example: log(12) + log(3) = log(36).</p><p><b>Your turn:</b> ${a} × ${b} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p><b>Product rule:</b> log(a) + log(b) = log(a × b) — adding logs multiplies the insides.</p><p>Example: log(12) + log(3) = log(36).</p><p><b>Your turn:</b> multiply the insides.</p>` },
         ],
       };
     }
@@ -1368,7 +1368,7 @@ const explogsT3 = {
         prompt: `Solve log<sub>${b}</sub>(x) = ${e}. Find x.`,
         answer: { kind: 'int', v: Math.pow(b, e) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>log<sub>b</sub>(x) = e means <b>x = bᵉ</b> — rewrite in exponential form.</p><p>Example: log₂(x) = 5 → x = 2⁵ = 32.</p><p><b>Your turn:</b> ${b}<sup>${e}</sup> = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>log<sub>b</sub>(x) = e means <b>x = bᵉ</b> — rewrite in exponential form.</p><p>Example: log₂(x) = 5 → x = 2⁵ = 32.</p><p><b>Your turn:</b> rewrite in exponential form: x = b^e. What do you get?</p>` },
         ],
       };
     }
@@ -1394,7 +1394,7 @@ const functionsT1 = {
         prompt: `If f(x) = ${f}, what is f(${x0})?`,
         answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>f(${x0}) means <b>plug ${x0} in for x</b> everywhere, then compute.</p><p>Example: f(x) = x² + 3x + 2, f(4) = 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your function with ${x0} in place of x.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>f(value) means <b>plug the value in for x</b> everywhere, then compute.</p><p>Example: f(x) = x² + 3x + 2, f(4) = 16 + 12 + 2 = 30.</p><p><b>Your turn:</b> rewrite your function with the given value in place of x.</p>` },
         ],
       };
     }
@@ -1404,7 +1404,7 @@ const functionsT1 = {
       prompt: `If f(x) = ${linStr(a1, b1)} and g(x) = ${linStr(a2, b2)}, what is f(g(${x0}))?`,
       answer: { kind: 'int', v: a1 * inner + b1 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Work <b>inside out</b>: find g(${x0}) first, then feed that result into f.</p><p>Example: f(x) = 3x + 2, g(x) = x − 1, f(g(4)). g(4) = 3, then f(3) = 11.</p><p><b>Your turn:</b> what is g(${x0})? Then plug that into f.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Work <b>inside out</b>: find g at the given value first, then feed that result into f.</p><p>Example: f(x) = 3x + 2, g(x) = x − 1, f(g(4)). g(4) = 3, then f(3) = 11.</p><p><b>Your turn:</b> what is g at the given value? Then plug that into f.</p>` },
         ],
       };
   },
@@ -1420,7 +1420,7 @@ const functionsT2 = {
         prompt: `If f(x) = ${linStr(a1, b1)} and g(x) = ${linStr(a2, b2)}, find (f∘g)(x). <span class="muted">Type it like 2x-5</span>`,
         answer: { kind: 'text', accept: [fmtPoly([[1, A], [0, B]])], normalize: 'poly' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>(f∘g)(x) = f(g(x)): <b>replace x in f with the whole g(x)</b>, then simplify.</p><p>Example: f(x) = 2x + 1, g(x) = x − 3. f(g(x)) = 2(x − 3) + 1 = 2x − 5.</p><p><b>Your turn:</b> write f with (${linStr(a2, b2)}) in place of x. Distribute and combine.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>(f∘g)(x) = f(g(x)): <b>replace x in f with the whole g(x)</b>, then simplify.</p><p>Example: f(x) = 2x + 1, g(x) = x − 3. f(g(x)) = 2(x − 3) + 1 = 2x − 5.</p><p><b>Your turn:</b> write f with the whole g(x) in place of x. Distribute and combine.</p>` },
         ],
       };
     }
@@ -1430,7 +1430,7 @@ const functionsT2 = {
       prompt: `If f(x) = ${linStr(a, b)}, what is f⁻¹(${y0})? <span class="muted">(the inverse function, at ${y0})</span>`,
       answer: { kind: 'int', v: x0 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>f⁻¹(y) <b>undoes</b> f: it’s the x that f sends to y. Set f(x) = ${y0} and solve for x.</p><p>Example: f(x) = 2x + 4, f⁻¹(10). 2x + 4 = 10 → x = 3.</p><p><b>Your turn:</b> set your f(x) equal to ${y0}. What’s x?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>f⁻¹(y) <b>undoes</b> f: it’s the x that f sends to y. Set f(x) equal to your target value and solve for x.</p><p>Example: f(x) = 2x + 4, f⁻¹(10). 2x + 4 = 10 → x = 3.</p><p><b>Your turn:</b> set your f(x) equal to your target value. What’s x?</p>` },
       ],
     };
   },
@@ -1446,7 +1446,7 @@ const functionsT3 = {
           prompt: `What is the domain of f(x) = √(x − ${a})? <span class="muted">Type it like x>=3</span>`,
           answer: { kind: 'text', accept: [`x>=${a}`], normalize: 'domain' },
           hints: [
-            { t: 'Hint 1 — the idea', html: `<p>A square root needs a <b>non-negative</b> inside: x − a ≥ 0.</p><p>Example: f(x) = √(x − 3) → x − 3 ≥ 0 → x ≥ 3.</p><p><b>Your turn:</b> what must x − ${a} be? Solve for x.</p>` },
+            { t: 'Hint 1 — the idea', html: `<p>A square root needs a <b>non-negative</b> inside: x − a ≥ 0.</p><p>Example: f(x) = √(x − 3) → x − 3 ≥ 0 → x ≥ 3.</p><p><b>Your turn:</b> what must the inside be? Solve for x.</p>` },
           ],
         };
       }
@@ -1476,7 +1476,7 @@ const functionsT3 = {
       prompt: `If f(x) = x², what is f(x + ${a}) expanded? <span class="muted">Type like x^2+4x+4</span>`,
       answer: { kind: 'text', accept: [fmtPoly([[2, 1], [1, 2 * a], [0, a * a]])], normalize: 'poly' },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Replace x with (x + a) and <b>expand the square</b>: (x + a)² = x² + 2ax + a².</p><p>Example: f(x + 2) = (x + 2)² = x² + 4x + 4.</p><p><b>Your turn:</b> expand (x + ${a})². What are the three terms?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Replace x with (x + a) and <b>expand the square</b>: (x + a)² = x² + 2ax + a².</p><p>Example: f(x + 2) = (x + 2)² = x² + 4x + 4.</p><p><b>Your turn:</b> expand (x + a)². What are the three terms?</p>` },
       ],
     };
   },
@@ -1511,7 +1511,7 @@ const trigT1 = {
         prompt: `In a 30°-60°-90° triangle, the hypotenuse is ${hyp}. What is the short leg?`,
         answer: { kind: 'int', v: hyp / 2 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>short leg is half the hypotenuse</b>.</p><p>Example: hypotenuse 10 → short leg 5.</p><p><b>Your turn:</b> half of ${hyp} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>short leg is half the hypotenuse</b>.</p><p>Example: hypotenuse 10 → short leg 5.</p><p><b>Your turn:</b> the short leg is half the hypotenuse — what is half of yours?</p>` },
         ],
       };
     }
@@ -1520,7 +1520,7 @@ const trigT1 = {
       prompt: `In a 30°-60°-90° triangle, the short leg is ${short}. What is the hypotenuse?`,
       answer: { kind: 'int', v: 2 * short },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>hypotenuse is twice the short leg</b>.</p><p>Example: short leg 4 → hypotenuse 8.</p><p><b>Your turn:</b> 2 × ${short} = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>In a 30°-60°-90° triangle, the <b>hypotenuse is twice the short leg</b>.</p><p>Example: short leg 4 → hypotenuse 8.</p><p><b>Your turn:</b> the hypotenuse is twice the short leg.</p>` },
       ],
     };
   },
@@ -1546,7 +1546,7 @@ const trigT2 = {
         prompt: `If ${fn}(θ) = ${d === 1 ? n : n + '/' + d} and θ is acute, what is θ? <span class="muted">(in degrees)</span>`,
         answer: { kind: 'int', v: parseInt(deg, 10) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Run the special-angle table <b>backwards</b>: which acute angle gives that value?</p><p>Example: sin(θ) = 1/2 → θ = 30°, because sin(30°) = 1/2.</p><p><b>Your turn:</b> which angle has ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Run the special-angle table <b>backwards</b>: which acute angle gives that value?</p><p>Example: sin(θ) = 1/2 → θ = 30°, because sin(30°) = 1/2.</p><p><b>Your turn:</b> which angle has that trig value?</p>` },
         ],
       };
     }
@@ -1558,7 +1558,7 @@ const trigT2 = {
         prompt: `If sin(θ) = ${opp}/${hyp} and θ is acute, what is cos(θ)?`,
         answer: { kind: 'fraction', n: adj, d: hyp },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: opposite ${opp}, hypotenuse ${hyp}. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: sin(θ) = 3/5 → triangle is 3-4-5, so cos(θ) = 4/5.</p><p><b>Your turn:</b> what's your adjacent side? cos = adjacent/hypotenuse.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: you know the opposite and the hypotenuse. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: sin(θ) = 3/5 → triangle is 3-4-5, so cos(θ) = 4/5.</p><p><b>Your turn:</b> what's your adjacent side? cos = adjacent/hypotenuse.</p>` },
         ],
       };
     }
@@ -1567,7 +1567,7 @@ const trigT2 = {
         prompt: `If cos(θ) = ${adj}/${hyp} and θ is acute, what is sin(θ)?`,
         answer: { kind: 'fraction', n: opp, d: hyp },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: adjacent ${adj}, hypotenuse ${hyp}. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: cos(θ) = 4/5 → triangle is 3-4-5, so sin(θ) = 3/5.</p><p><b>Your turn:</b> what's your opposite side? sin = opposite/hypotenuse.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Picture the triangle: you know the adjacent and the hypotenuse. The third side comes from a² + b² = c² — or recognize the triple.</p><p>Example: cos(θ) = 4/5 → triangle is 3-4-5, so sin(θ) = 3/5.</p><p><b>Your turn:</b> what's your opposite side? sin = opposite/hypotenuse.</p>` },
         ],
       };
     }
@@ -1575,7 +1575,7 @@ const trigT2 = {
       prompt: `If sin(θ) = ${opp}/${hyp} and cos(θ) = ${adj}/${hyp}, what is tan(θ)?`,
       answer: { kind: 'fraction', n: opp, d: adj },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p><b>tan = sin / cos</b> — divide the two fractions.</p><p>Example: sin = 3/5, cos = 4/5 → tan = (3/5) ÷ (4/5) = 3/4.</p><p><b>Your turn:</b> (${opp}/${hyp}) ÷ (${adj}/${hyp}) = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p><b>tan = sin / cos</b> — divide the two fractions.</p><p>Example: sin = 3/5, cos = 4/5 → tan = (3/5) ÷ (4/5) = 3/4.</p><p><b>Your turn:</b> tan = sin / cos — divide the two fractions.</p>` },
       ],
     };
   },
@@ -1591,7 +1591,7 @@ const trigT3 = {
         prompt: `Solve ${fn}(x) = ${d === 1 ? n : n + '/' + d} for 0° ≤ x ≤ 90°. Find x. <span class="muted">(in degrees)</span>`,
         answer: { kind: 'int', v: parseInt(deg, 10) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Ask: “which angle in range has this trig value?” Use the special-angle values.</p><p>Example: sin(x) = 1/2 for 0° ≤ x ≤ 90° → x = 30°.</p><p><b>Your turn:</b> which angle gives ${fn} = ${d === 1 ? n : n + '/' + d}?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Ask: “which angle in range has this trig value?” Use the special-angle values.</p><p>Example: sin(x) = 1/2 for 0° ≤ x ≤ 90° → x = 30°.</p><p><b>Your turn:</b> which angle gives that trig value?</p>` },
         ],
       };
     }
@@ -1601,7 +1601,7 @@ const trigT3 = {
         prompt: `If sin²(θ) = ${n}/${d}, what is cos²(θ)?`,
         answer: { kind: 'fraction', n: d - n, d },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>The Pythagorean identity: <b>sin²(θ) + cos²(θ) = 1</b>.</p><p>Example: sin²(θ) = 3/4 → cos²(θ) = 1 − 3/4 = 1/4.</p><p><b>Your turn:</b> 1 − ${n}/${d} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>The Pythagorean identity: <b>sin²(θ) + cos²(θ) = 1</b>.</p><p>Example: sin²(θ) = 3/4 → cos²(θ) = 1 − 3/4 = 1/4.</p><p><b>Your turn:</b> 1 − sin² = ?</p>` },
         ],
       };
     }
@@ -1612,7 +1612,7 @@ const trigT3 = {
         prompt: `If sin²(θ) = ${n}/${d} and θ is acute, what is cos(θ)?`,
         answer: { kind: 'fraction', n: cn, d: cd },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>sin² + cos² = 1, so cos² = 1 − ${n}/${d} = ${d - n}/${d}. Then cos is the square root — θ acute means the positive one.</p><p>Example: sin²(θ) = 3/4 → cos² = 1/4 → cos = 1/2.</p><p><b>Your turn:</b> what's your cos²? What squared gives it?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>sin² + cos² = 1, so cos² = 1 − sin². What do you get when you subtract? Then cos is the square root — θ acute means the positive one.</p><p>Example: sin²(θ) = 3/4 → cos² = 1/4 → cos = 1/2.</p><p><b>Your turn:</b> what's your cos²? What squared gives it?</p>` },
         ],
       };
     }
@@ -1640,7 +1640,7 @@ const sequencesT1 = {
         prompt: `An arithmetic sequence starts ${a1}, ${a1 + d}, ${a1 + 2 * d}, … What is the ${n}th term?`,
         answer: { kind: 'int', v: a1 + (n - 1) * d },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Arithmetic nth term: <b>aₙ = a₁ + (n − 1)d</b>, where d is the common difference.</p><p>Example: 3, 7, 11, … (d = 4). 10th term: 3 + 9 × 4 = 39.</p><p><b>Your turn:</b> what’s your d? Then ${a1} + ${n - 1} × d = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Arithmetic nth term: <b>aₙ = a₁ + (n − 1)d</b>, where d is the common difference.</p><p>Example: 3, 7, 11, … (d = 4). 10th term: 3 + 9 × 4 = 39.</p><p><b>Your turn:</b> what’s your d? Then use aₙ = a₁ + (n−1)d.</p>` },
         ],
       };
     }
@@ -1649,7 +1649,7 @@ const sequencesT1 = {
       prompt: `A geometric sequence starts ${a1}, ${a1 * r}, ${a1 * r * r}, … What is the ${n}th term?`,
       answer: { kind: 'int', v: a1 * Math.pow(r, n - 1) },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Geometric nth term: <b>aₙ = a₁ × rⁿ⁻¹</b>, where r is the common ratio.</p><p>Example: 2, 6, 18, … (r = 3). 5th term: 2 × 3⁴ = 162.</p><p><b>Your turn:</b> what’s your r? Then ${a1} × ${r}<sup>${n - 1}</sup> = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Geometric nth term: <b>aₙ = a₁ × rⁿ⁻¹</b>, where r is the common ratio.</p><p>Example: 2, 6, 18, … (r = 3). 5th term: 2 × 3⁴ = 162.</p><p><b>Your turn:</b> what’s your r? Then use aₙ = a₁ × rⁿ⁻¹.</p>` },
         ],
       };
   },
@@ -1663,7 +1663,7 @@ const sequencesT2 = {
         prompt: `What is the sum of the first ${n} terms of ${a1}, ${a1 + d}, ${a1 + 2 * d}, …?`,
         answer: { kind: 'int', v: (n / 2) * (2 * a1 + (n - 1) * d) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Arithmetic series: <b>Sₙ = n/2 × (2a₁ + (n−1)d)</b>. Or pair first+last, second+second-last…</p><p>Example: first 10 terms of 3, 7, 11, …: 10/2 × (6 + 36) = 210.</p><p><b>Your turn:</b> what’s the ${n}th term? Then average it with the first and multiply by ${n}.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Arithmetic series: <b>Sₙ = n/2 × (2a₁ + (n−1)d)</b>. Or pair first+last, second+second-last…</p><p>Example: first 10 terms of 3, 7, 11, …: 10/2 × (6 + 36) = 210.</p><p><b>Your turn:</b> what’s the last term? Then average it with the first and multiply by the number of terms.</p>` },
         ],
       };
     }
@@ -1672,7 +1672,7 @@ const sequencesT2 = {
       prompt: `What is the sum of the first ${n} terms of ${a1}, ${a1 * r}, ${a1 * r * r}, …?`,
       answer: { kind: 'int', v: a1 * (Math.pow(r, n) - 1) / (r - 1) },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Geometric series: <b>Sₙ = a₁(rⁿ − 1)/(r − 1)</b>.</p><p>Example: first 5 terms of 2, 6, 18, …: 2 × (3⁵ − 1)/2 = 242.</p><p><b>Your turn:</b> compute ${r}<sup>${n}</sup>, then plug in.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Geometric series: <b>Sₙ = a₁(rⁿ − 1)/(r − 1)</b>.</p><p>Example: first 5 terms of 2, 6, 18, …: 2 × (3⁵ − 1)/2 = 242.</p><p><b>Your turn:</b> compute r to the nth power, then plug in.</p>` },
         ],
       };
   },
@@ -1688,7 +1688,7 @@ const sequencesT3 = {
         prompt: `A sequence is defined by a₁ = ${a1}, aₙ = ${m}aₙ₋₁ + ${add}. What is a<sub>${n}</sub>?`,
         answer: { kind: 'int', v: cur },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Build it <b>one term at a time</b>: each term comes from the previous one.</p><p>Example: a₁ = 2, aₙ = 3aₙ₋₁ + 1. a₂ = 7, a₃ = 22, a₄ = 67.</p><p><b>Your turn:</b> what’s a₂? Then a₃, and so on up to a<sub>${n}</sub>.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Build it <b>one term at a time</b>: each term comes from the previous one.</p><p>Example: a₁ = 2, aₙ = 3aₙ₋₁ + 1. a₂ = 7, a₃ = 22, a₄ = 67.</p><p><b>Your turn:</b> what’s a₂? Then a₃, and so on up to the term asked for.</p>` },
         ],
       };
     }
@@ -1699,7 +1699,7 @@ const sequencesT3 = {
       prompt: `What is ${a1} + ${fmt(t2)} + ${fmt(t3)} + … (forever)?`,
       answer: { kind: 'int', v: 2 * a1 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Infinite geometric sum: <b>S = a₁ / (1 − r)</b>, when |r| < 1.</p><p>Example: 1 + 1/2 + 1/4 + … has a₁ = 1, r = 1/2 → S = 1 / (1 − 1/2) = 2.</p><p><b>Your turn:</b> what are a₁ and r in your series? Then ${a1} / (1 − 1/2) = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Infinite geometric sum: <b>S = a₁ / (1 − r)</b>, when |r| < 1.</p><p>Example: 1 + 1/2 + 1/4 + … has a₁ = 1, r = 1/2 → S = 1 / (1 − 1/2) = 2.</p><p><b>Your turn:</b> what are a₁ and r in your series? Then compute a₁ / (1 − r).</p>` },
       ],
     };
   },
@@ -1778,7 +1778,7 @@ const statsT2 = {
         prompt: `How many ways can ${n} people line up?`,
         answer: { kind: 'int', v: factorial(n) },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Line-ups: <b>n! = n × (n−1) × … × 1</b> — choices shrink as spots fill.</p><p>Example: 4 people → 4 × 3 × 2 × 1 = 24.</p><p><b>Your turn:</b> ${n} × ${n - 1} × … × 1 = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Line-ups: <b>n! = n × (n−1) × … × 1</b> — choices shrink as spots fill.</p><p>Example: 4 people → 4 × 3 × 2 × 1 = 24.</p><p><b>Your turn:</b> Write out the factorial for your number and multiply it out.</p>` },
         ],
       };
     }
@@ -1787,7 +1787,7 @@ const statsT2 = {
       prompt: `How many ways can you choose ${k} toppings from ${n}? <span class="muted">(order doesn’t matter)</span>`,
       answer: { kind: 'int', v: choose(n, k) },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Choosing (order doesn’t matter): <b>C(n,k) = n! / (k! (n−k)!)</b>.</p><p>Example: choose 2 from 5 → 5! / (2! × 3!) = 10.</p><p><b>Your turn:</b> ${n}! ÷ (${k}! × ${n - k}!) = ?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Choosing (order doesn’t matter): <b>C(n,k) = n! / (k! (n−k)!)</b>.</p><p>Example: choose 2 from 5 → 5! / (2! × 3!) = 10.</p><p><b>Your turn:</b> Write out the factorials for your numbers and cancel.</p>` },
         ],
       };
   },
@@ -1812,7 +1812,7 @@ const statsT3 = {
         prompt: `A game pays $${pay} if you roll a 6 on a fair die, and $0 otherwise. What is the expected value? <span class="muted">(in dollars)</span>`,
         answer: { kind: 'int', v: pay / 6 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Expected value = <b>each outcome × its probability, added up</b>.</p><p>Example: win $6 with P = 1/6 → EV = 6 × 1/6 = 1.</p><p><b>Your turn:</b> ${pay} × (1/6) + 0 × (5/6) = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Expected value = <b>each outcome × its probability, added up</b>.</p><p>Example: win $6 with P = 1/6 → EV = 6 × 1/6 = 1.</p><p><b>Your turn:</b> Multiply each payoff by its probability and add.</p>` },
         ],
       };
     }
@@ -1821,7 +1821,7 @@ const statsT3 = {
       prompt: `What is the probability of rolling a sum of ${sum} with two dice?`,
       answer: { kind: 'fraction', n: ways, d: 36 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Count the winning pairs out of all <b>36</b> pairs (6 × 6).</p><p>Example: sum of 7 → (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) → 6/36 = 1/6.</p><p><b>Your turn:</b> list the pairs that add to ${sum}. How many? Over 36.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Count the winning pairs out of all <b>36</b> pairs (6 × 6).</p><p>Example: sum of 7 → (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) → 6/36 = 1/6.</p><p><b>Your turn:</b> list the pairs that add to your target sum. How many? Over 36.</p>` },
         ],
       };
   },
@@ -1837,7 +1837,7 @@ const calculusT1 = {
         prompt: `What is the limit of ${quadDisplay(a, b, c)} as x approaches ${x0}?`,
         answer: { kind: 'int', v: a * x0 * x0 + b * x0 + c },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>For a polynomial, the limit is just <b>the value at that point</b> — plug in.</p><p>Example: limit of x² + 2x as x → 3 → 9 + 6 = 15.</p><p><b>Your turn:</b> plug ${x0} into your polynomial.</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>For a polynomial, the limit is just <b>the value at that point</b> — plug in.</p><p>Example: limit of x² + 2x as x → 3 → 9 + 6 = 15.</p><p><b>Your turn:</b> plug your x-value into the polynomial.</p>` },
         ],
       };
     }
@@ -1846,7 +1846,7 @@ const calculusT1 = {
       prompt: `What is the average rate of change of f(x) = x² from x = ${x1} to x = ${x2}?`,
       answer: { kind: 'int', v: x1 + x2 },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Average rate of change = <b>(f(x₂) − f(x₁)) / (x₂ − x₁)</b> — the slope between two points on the graph.</p><p>Example: f(x) = x² from 1 to 3 → (9 − 1) / 2 = 4.</p><p><b>Your turn:</b> f(${x1}) = ? f(${x2}) = ? Then divide the change in f by the change in x.</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Average rate of change = <b>(f(x₂) − f(x₁)) / (x₂ − x₁)</b> — the slope between two points on the graph.</p><p>Example: f(x) = x² from 1 to 3 → (9 − 1) / 2 = 4.</p><p><b>Your turn:</b> Find f at each endpoint, then divide the difference by the run.</p>` },
         ],
       };
   },
@@ -1871,7 +1871,7 @@ const calculusT2 = {
         prompt: `What is the slope of the tangent to f(x) = x² at x = ${x0}?`,
         answer: { kind: 'int', v: 2 * x0 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Tangent slope at x₀ = <b>f′(x₀)</b>. For f(x) = x², f′(x) = 2x.</p><p>Example: at x = 4 → slope = 2 × 4 = 8.</p><p><b>Your turn:</b> 2 × ${x0} = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Tangent slope at x₀ = <b>f′(x₀)</b>. For f(x) = x², f′(x) = 2x.</p><p>Example: at x = 4 → slope = 2 × 4 = 8.</p><p><b>Your turn:</b> Twice your x-value is the slope.</p>` },
         ],
       };
     }
@@ -1895,7 +1895,7 @@ const calculusT3 = {
         prompt: `Find the antiderivative of ${a}x + ${b} (omit +C). <span class="muted">Type it like x^2+3x</span>`,
         answer: { kind: 'text', accept: [fmtPoly([[2, a / 2], [1, b]])], normalize: 'poly' },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Antiderivative = <b>reverse power rule</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(2x + 3) dx = x² + 3x.</p><p><b>Your turn:</b> ${a}x becomes what? ${b} becomes what?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Antiderivative = <b>reverse power rule</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(2x + 3) dx = x² + 3x.</p><p><b>Your turn:</b> Each term becomes what? Raise the exponent, divide by the new exponent.</p>` },
         ],
       };
     }
@@ -1905,7 +1905,7 @@ const calculusT3 = {
         prompt: `Evaluate the integral from 0 to ${u} of x dx.`,
         answer: { kind: 'int', v: (u * u) / 2 },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>∫₀ᵘ x dx = [x²/2]₀ᵘ — evaluate the antiderivative at the top, minus at the bottom.</p><p>Example: ∫₀² x dx = 2²/2 − 0 = 2.</p><p><b>Your turn:</b> ${u}² / 2 = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>∫₀ᵘ x dx = [x²/2]₀ᵘ — evaluate the antiderivative at the top, minus at the bottom.</p><p>Example: ∫₀² x dx = 2²/2 − 0 = 2.</p><p><b>Your turn:</b> Square your upper limit, then halve it.</p>` },
         ],
       };
     }
@@ -1915,7 +1915,7 @@ const calculusT3 = {
         prompt: `What is the area under f(x) = 2x from x = 0 to x = ${u}?`,
         answer: { kind: 'int', v: u * u },
         hints: [
-          { t: 'Hint 1 — the idea', html: `<p>Area = the <b>definite integral</b>: antiderivative 2x → x², evaluated 0 to u.</p><p>Example: area under 2x from 0 to 3 = 3² = 9.</p><p><b>Your turn:</b> ${u}² = ?</p>` },
+          { t: 'Hint 1 — the idea', html: `<p>Area = the <b>definite integral</b>: antiderivative 2x → x², evaluated 0 to u.</p><p>Example: area under 2x from 0 to 3 = 3² = 9.</p><p><b>Your turn:</b> Square your upper limit.</p>` },
         ],
       };
     }
@@ -1925,7 +1925,7 @@ const calculusT3 = {
       prompt: `Find the antiderivative of ${a}x<sup>2</sup> + ${b}x + ${c} (omit +C). <span class="muted">Type it like x^3+x^2+x</span>`,
       answer: { kind: 'text', accept: [fmtPoly([[3, a / 3], [2, b / 2], [1, c]])], normalize: 'poly' },
       hints: [
-        { t: 'Hint 1 — the idea', html: `<p>Reverse power rule on <b>each term</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(3x² + 2x + 1) dx = x³ + x² + x.</p><p><b>Your turn:</b> ${a}x² becomes what? ${b}x becomes what? ${c} becomes what?</p>` },
+        { t: 'Hint 1 — the idea', html: `<p>Reverse power rule on <b>each term</b>: raise the exponent by one, divide by the new exponent.</p><p>Example: ∫(3x² + 2x + 1) dx = x³ + x² + x.</p><p><b>Your turn:</b> Each term becomes what? Raise the exponent, divide by the new exponent.</p>` },
       ],
     };
   },
