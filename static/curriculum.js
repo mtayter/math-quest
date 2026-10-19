@@ -1694,7 +1694,7 @@ const sequencesT3 = {
     }
     const a1 = pick(rnd, [2, 4, 6, 8]);
     const t2 = a1 / 2, t3 = a1 / 4;
-    const fmt = (v) => Number.isInteger(v) ? String(v) : `1/${2 / v}`;
+    const fmt = (v) => Number.isInteger(v) ? String(v) : `${Math.round(v * 2)}/2`; // terms are multiples of 1/2
     return {
       prompt: `What is ${a1} + ${fmt(t2)} + ${fmt(t3)} + … (forever)?`,
       answer: { kind: 'int', v: 2 * a1 },
