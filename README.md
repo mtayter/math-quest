@@ -140,16 +140,21 @@ sudo a2enconf math-quest && sudo systemctl reload apache2
 
 Check the service with `systemctl --user status math-quest.service`.
 
-### Home-WiFi note: split-horizon DNS
+### Home-WiFi note: NAT loopback (hairpinning)
 
 If your router lacks NAT loopback (hairpinning), devices on your home WiFi
 cannot reach your server via its public hostname — the router returns the
-public IP, which it then refuses to route back inside. The fix is
-split-horizon DNS: run a DNS server (e.g. `dnsmasq`) on your home server,
-bound to the server's LAN IP, with an override mapping
-`<your-hostname>` → `<your-server-LAN-IP>`, and point your DHCP clients at
-the server for DNS. External visitors keep resolving the public IP; home
-devices resolve the LAN IP and connect directly.
+public IP, which it then refuses to route back inside. The simplest fix is
+at the router: enable NAT loopback if it has one, or put the router in
+IP-passthrough mode behind a router that handles loopback correctly (this
+is what the reference deployment does).
+
+If neither is available, the fallback is split-horizon DNS: run a DNS
+server (e.g. `dnsmasq`) on your home server, bound to the server's LAN IP,
+with an override mapping `<your-hostname>` → `<your-server-LAN-IP>`, and
+point your DHCP clients at the server for DNS. External visitors keep
+resolving the public IP; home devices resolve the LAN IP and connect
+directly.
 
 Caveat: a secondary DNS server (e.g. a public resolver) is *not* strict
 failover — a device may ask the secondary, get the public IP, and fail to
